@@ -104,6 +104,51 @@ def analyze(
     return results
 
 
+def _land_rates_for_group(group: dict) -> tuple[float, ...]:
+    for field in group.get("fields", []):
+        if field.get("type") == "land_mons":
+            return tuple(field["encounter_rates"])
+    return LAND_SLOT_RATES
+
+
+def _version_matches(label: str, version: str | None) -> bool:
+    if not version:
+        return True
+    # Labels look like sRockTunnelB1F_FireRed / _LeafGreen
+    if version.lower() == "firered" and "LeafGreen" in label:
+        return False
+    if version.lower() == "leafgreen" and "FireRed" in label:
+        return False
+    return True
+
+
+def list_land_maps(
+    encounters_path: Path,
+    version: str | None = None,
+) -> list[tuple[str, str]]:
+    """Return (map_constant_without_MAP_, base_label) for maps with land_mons."""
+    data = json.loads(encounters_path.read_text())
+    seen: set[str] = set()
+    rows: list[tuple[str, str]] = []
+    for group in data["wild_encounter_groups"]:
+        for enc in group.get("encounters", []):
+            land = enc.get("land_mons")
+            if not land:
+                continue
+            map_name = enc.get("map", "")
+            label = enc.get("base_label", map_name)
+            if not _version_matches(label, version):
+                continue
+            short = map_name.removeprefix("MAP_")
+            # Prefer first match per short name (FireRed before LeafGreen when unfiltered).
+            if short in seen:
+                continue
+            seen.add(short)
+            rows.append((short, label))
+    rows.sort(key=lambda row: row[0])
+    return rows
+
+
 def load_map_land_slots(
     encounters_path: Path,
     map_name: str,
@@ -116,13 +161,7 @@ def load_map_land_slots(
 
     matches: list[tuple[str, list[Slot]]] = []
     for group in data["wild_encounter_groups"]:
-        rates = None
-        for field in group.get("fields", []):
-            if field.get("type") == "land_mons":
-                rates = tuple(field["encounter_rates"])
-                break
-        if rates is None:
-            rates = LAND_SLOT_RATES
+        rates = _land_rates_for_group(group)
 
         for enc in group.get("encounters", []):
             if enc.get("map") != map_key:
@@ -131,12 +170,8 @@ def load_map_land_slots(
             if not land:
                 continue
             label = enc.get("base_label", map_key)
-            if version:
-                # Labels look like sRockTunnelB1F_FireRed / _LeafGreen
-                if version.lower() == "firered" and "LeafGreen" in label:
-                    continue
-                if version.lower() == "leafgreen" and "FireRed" in label:
-                    continue
+            if not _version_matches(label, version):
+                continue
             mons = land["mons"]
             if len(mons) != len(rates):
                 raise SystemExit(
@@ -154,7 +189,9 @@ def load_map_land_slots(
             matches.append((label, slots))
 
     if not matches:
-        raise SystemExit(f"No land encounters found for {map_key}")
+        available = ", ".join(name for name, _ in list_land_maps(encounters_path, version)[:12])
+        hint = f" Try --list-maps. Examples: {available}…" if available else " Try --list-maps."
+        raise SystemExit(f"No land encounters found for {map_key}.{hint}")
     if len(matches) > 1 and not version:
         labels = ", ".join(label for label, _ in matches)
         raise SystemExit(
@@ -287,12 +324,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     src.add_argument(
         "--map",
         default="ROCK_TUNNEL_B1F",
-        help="Map constant, e.g. ROCK_TUNNEL_B1F (default) or ROCK_TUNNEL_1F",
+        help="Map constant to analyze, e.g. ROCK_TUNNEL_B1F (default). Use --list-maps for names.",
     )
     src.add_argument(
         "--user-table",
         action="store_true",
         help="Use the aggregated Rock Tunnel table from the request (approx.)",
+    )
+    src.add_argument(
+        "--list-maps",
+        action="store_true",
+        help="Print all map names that have land encounters, then exit",
     )
     p.add_argument(
         "--version",
@@ -339,6 +381,13 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+
+    if args.list_maps:
+        rows = list_land_maps(args.encounters, args.version)
+        print(f"Maps with land encounters ({args.version}, {len(rows)}):")
+        for short, label in rows:
+            print(f"  {short}  ({label})")
+        return 0
 
     if args.user_table:
         label = "user-provided Rock Tunnel aggregate table"
