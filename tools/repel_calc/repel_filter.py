@@ -573,12 +573,15 @@ def nature_ability_hunt(
     """Loop nature/ability combos until the user is done."""
     key = normalize_species(species_name).removeprefix("SPECIES_")
     print()
-    print("=" * 28)
-    print("Nature / ability hunt")
+    print("-" * 28)
+    print("NEXT: nature / ability")
     print(f"Species of_enc {_pct(species_pct)}")
     if best_lead is not None:
         print(f"Best lead Lv{best_lead}")
-    print("=" * 28)
+    print("-" * 28)
+    print("Pick +/- stats for natures,")
+    print("then an ability.")
+    print()
 
     while True:
         natures = prompt_natures(species_pct)
@@ -599,8 +602,8 @@ def nature_ability_hunt(
             ability_pct=ability_pct,
         )
         print()
-        print("1) Another combo")
-        print("0) Done")
+        print("1) Another nature/ability")
+        print("0) Done with this mon")
         raw = input("> ").strip().lower()
         if raw in ("0", "d", "done", "q", "n", "no"):
             return
@@ -713,12 +716,14 @@ def interactive(data: dict, default_version: str = "firered") -> int:
             slots,
             target,
         )
-        hunt = input("Nature/ability hunt? [Y/n] ").strip().lower()
-        if hunt not in ("n", "no"):
-            nature_ability_hunt(target, species_pct, best_lead, abilities_data)
+        # Always continue into nature/ability odds after Repel analysis.
+        nature_ability_hunt(target, species_pct, best_lead, abilities_data)
         print()
-        again = input("Another area? [Y/n] ").strip().lower()
-        if again in ("n", "no"):
+        print("Next:")
+        print("1) Another species/area")
+        print("0) Quit")
+        again = input("> ").strip().lower()
+        if again in ("0", "q", "quit", "n", "no"):
             return 0
         print()
 
