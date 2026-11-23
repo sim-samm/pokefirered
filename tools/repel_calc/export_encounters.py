@@ -15,8 +15,19 @@ DEFAULT_OUT = HERE / "encounters.json"
 
 
 def pretty_map(map_const: str) -> str:
+    """Human label from MAP_* constant, e.g. MAP_ROUTE7 -> 'Route 7'."""
+    import re
+
     name = map_const[4:] if map_const.startswith("MAP_") else map_const
-    return name.replace("_", " ").title()
+    parts = []
+    for part in name.split("_"):
+        # ROUTE7 -> Route 7; leave B1F / 1F-style tokens alone.
+        m = re.match(r"^([A-Za-z]+)(\d+)$", part)
+        if m:
+            parts.append(f"{m.group(1).title()} {m.group(2)}")
+        else:
+            parts.append(part.title() if part.isalpha() else part)
+    return " ".join(parts)
 
 
 def strip_species(species: str) -> str:

@@ -31,6 +31,19 @@ METHOD_RATES_KEY = {
 }
 
 
+def friendly_map_name(map_id: str, stored: str | None = None) -> str:
+    """ROUTE7 -> 'Route 7' so Route 7 vs Route 8 is obvious in the UI."""
+    parts = []
+    for part in map_id.split("_"):
+        # Only split when the token is letters + pure digits (ROUTE7), not B1F.
+        m = re.match(r"^([A-Za-z]+)(\d+)$", part)
+        if m:
+            parts.append(f"{m.group(1).title()} {m.group(2)}")
+        else:
+            parts.append(part.title() if part.isalpha() else part)
+    return " ".join(parts)
+
+
 @dataclass(frozen=True)
 class Slot:
     species: str
@@ -357,11 +370,12 @@ def interactive(data: dict, default_version: str = "firered") -> int:
 
         labels = []
         for a, b in hits:
+            nice = friendly_map_name(a["id"], a.get("name"))
             if choice == "1" and target_hint:
                 slots = slots_from_block(b, method, data["slot_rates"])
                 total, levels = species_aggregate(slots, target_hint)
                 labels.append(
-                    f"{a['id']} — {total:g}% Lv{format_level_list(levels)}"
+                    f"{a['id']} ({nice}) — {total:g}% Lv{format_level_list(levels)}"
                 )
             else:
                 names = sorted(
@@ -370,7 +384,7 @@ def interactive(data: dict, default_version: str = "firered") -> int:
                         for r in b[method]
                     }
                 )
-                labels.append(f"{a['id']} — {a['name']}  [{', '.join(names)}]")
+                labels.append(f"{a['id']} ({nice})  [{', '.join(names)}]")
 
         idx = _pick_from_list(labels, "Area #: ")
         if idx is None:
@@ -390,7 +404,12 @@ def interactive(data: dict, default_version: str = "firered") -> int:
             target = species_on_map[sidx]
 
         print()
-        run_analysis(f"{area['id']} ({version}, {method})", slots, target)
+        nice = friendly_map_name(area["id"], area.get("name"))
+        run_analysis(
+            f"{area['id']} — {nice} ({version}, {method})",
+            slots,
+            target,
+        )
         print()
         again = input("Another? [Y/n] ").strip().lower()
         if again in ("n", "no"):
@@ -442,8 +461,10 @@ def main(argv: list[str] | None = None) -> int:
         for area, block in hits:
             slots = slots_from_block(block, args.method, data["slot_rates"])
             total, levels = species_aggregate(slots, args.find)
+            nice = friendly_map_name(area["id"], area.get("name"))
             print(
-                f"  {area['id']:<32} {total:5.1f}%  Lv{format_level_list(levels)}"
+                f"  {area['id']:<28} {nice:<22} {total:5.1f}%  "
+                f"Lv{format_level_list(levels)}"
             )
         if not hits:
             print("  (none)")
@@ -471,8 +492,9 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit(f"Ambiguous map {args.map!r}: {ids}")
     area, block = hits[0]
     slots = slots_from_block(block, args.method, data["slot_rates"])
+    nice = friendly_map_name(area["id"], area.get("name"))
     run_analysis(
-        f"{area['id']} ({args.version}, {args.method})",
+        f"{area['id']} — {nice} ({args.version}, {args.method})",
         slots,
         args.target,
         show_slots=args.show_slots,
