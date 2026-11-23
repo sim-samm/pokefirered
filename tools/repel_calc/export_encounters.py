@@ -12,6 +12,9 @@ HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
 DEFAULT_SRC = REPO_ROOT / "src" / "data" / "wild_encounters.json"
 DEFAULT_OUT = HERE / "encounters.json"
+DEFAULT_ABILITIES_OUT = HERE / "species_abilities.json"
+SPECIES_INFO = REPO_ROOT / "src" / "data" / "pokemon" / "species_info.h"
+ABILITY_NAMES = REPO_ROOT / "src" / "data" / "text" / "abilities.h"
 
 
 def pretty_map(map_const: str) -> str:
@@ -106,14 +109,61 @@ def export(src_path: Path, out_path: Path) -> None:
     print(f"Wrote {out_path} ({out_path.stat().st_size} bytes, {len(collapsed)} areas)")
 
 
+def export_abilities(species_info: Path, ability_names: Path, out_path: Path) -> None:
+    """Export FR/LG ability names per species from pret headers."""
+    import re
+
+    name_map: dict[str, str | None] = {}
+    for m in re.finditer(
+        r"\[(ABILITY_\w+)\]\s*=\s*_\(\"([^\"]*)\"\)", ability_names.read_text()
+    ):
+        raw = m.group(2)
+        pretty = None if set(raw) <= {"-"} else " ".join(w.capitalize() for w in raw.split())
+        name_map[m.group(1)] = pretty
+
+    info = species_info.read_text()
+    species: dict[str, dict] = {}
+    for m in re.finditer(r"\[SPECIES_(\w+)\]", info):
+        sp = m.group(1)
+        window = info[m.start() : m.start() + 800]
+        am = re.search(
+            r"\.abilities\s*=\s*\{\s*(ABILITY_\w+)\s*,\s*(ABILITY_\w+)\s*\}", window
+        )
+        if not am:
+            continue
+        a0, a1 = am.group(1), am.group(2)
+        n0, n1 = name_map.get(a0), name_map.get(a1)
+        if n0 is None:
+            continue
+        dual = a1 != "ABILITY_NONE" and n1 is not None and a0 != a1
+        species[sp] = {
+            "slot0": n0,
+            "slot1": n1 if dual else None,
+            "dual": dual,
+        }
+
+    payload = {
+        "source": "src/data/pokemon/species_info.h + src/data/text/abilities.h",
+        "rule": "if abilities[1] nonzero: abilityNum = personality & 1; else always slot0",
+        "species": species,
+    }
+    out_path.write_text(json.dumps(payload, separators=(",", ":")))
+    print(f"Wrote {out_path} ({out_path.stat().st_size} bytes, {len(species)} species)")
+
+
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--src", type=Path, default=DEFAULT_SRC)
     p.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    p.add_argument("--abilities-out", type=Path, default=DEFAULT_ABILITIES_OUT)
     args = p.parse_args()
     if not args.src.is_file():
         raise SystemExit(f"Missing source encounters: {args.src}")
     export(args.src, args.out)
+    if SPECIES_INFO.is_file() and ABILITY_NAMES.is_file():
+        export_abilities(SPECIES_INFO, ABILITY_NAMES, args.abilities_out)
+    else:
+        print("Skip species_abilities.json (headers not found)")
     return 0
 
 

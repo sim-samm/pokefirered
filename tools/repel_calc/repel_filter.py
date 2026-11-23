@@ -5,8 +5,8 @@ Gen 3 Repel / encounter-rate calculator for FireRed & LeafGreen.
 Ships with encounters.json (exported from the decomp). Pick a map and target
 species — no website copy/paste required.
 
-Pythonista: copy this whole folder (repel_filter.py + encounters.json), then run
-repel_filter.py.
+Pythonista: copy repel_filter.py, encounters.json, and species_abilities.json
+into one folder, then run repel_filter.py.
 """
 
 from __future__ import annotations
@@ -23,6 +23,39 @@ from typing import Iterable
 
 HERE = Path(__file__).resolve().parent
 DATA_FILE = HERE / "encounters.json"
+ABILITIES_FILE = HERE / "species_abilities.json"
+
+# pret sNatureStatTable columns: Atk, Def, Spe, SpA, SpD (+1 / -1 / 0)
+STAT_KEYS = ("Atk", "Def", "Spe", "SpA", "SpD")
+NATURES: list[tuple[str, int | None, int | None]] = [
+    # name, +stat index, -stat index (None = neutral)
+    ("Hardy", None, None),
+    ("Lonely", 0, 1),
+    ("Brave", 0, 2),
+    ("Adamant", 0, 3),
+    ("Naughty", 0, 4),
+    ("Bold", 1, 0),
+    ("Docile", None, None),
+    ("Relaxed", 1, 2),
+    ("Impish", 1, 3),
+    ("Lax", 1, 4),
+    ("Timid", 2, 0),
+    ("Hasty", 2, 1),
+    ("Serious", None, None),
+    ("Jolly", 2, 3),
+    ("Naive", 2, 4),
+    ("Modest", 3, 0),
+    ("Mild", 3, 1),
+    ("Quiet", 3, 2),
+    ("Bashful", None, None),
+    ("Rash", 3, 4),
+    ("Calm", 4, 0),
+    ("Gentle", 4, 1),
+    ("Sassy", 4, 2),
+    ("Careful", 4, 3),
+    ("Quirky", None, None),
+]
+assert len(NATURES) == 25  # NUM_NATURES; PID % 25
 
 METHOD_RATES_KEY = {
     "land": "land",
@@ -294,7 +327,13 @@ def format_area_choice(
     return "\n".join(lines)
 
 
-def run_analysis(label: str, slots: list[Slot], target: str, show_slots: bool = True) -> None:
+def run_analysis(
+    label: str,
+    slots: list[Slot],
+    target: str,
+    show_slots: bool = True,
+) -> tuple[float, int | None]:
+    """Print species/Repel analysis. Return (best of_enc %, best lead)."""
     max_wild = max(max(s.min_level, s.max_level) for s in slots)
     min_wild = min(min(s.min_level, s.max_level) for s in slots)
     results = analyze(slots, target, range(1, max_wild + 2))
@@ -317,11 +356,13 @@ def run_analysis(label: str, slots: list[Slot], target: str, show_slots: bool = 
     interesting = [r for r in results if r.lead_level >= min_wild - 1]
     print(format_results(target, interesting))
     valid = [r for r in results if r.conditional_pct is not None]
-    if valid:
-        best = max(r.conditional_pct for r in valid)
-        lead = max(r.lead_level for r in valid if r.conditional_pct == best)
-        print()
-        print(species_mix(slots, lead, target))
+    if not valid:
+        return 0.0, None
+    best = max(r.conditional_pct for r in valid)
+    lead = max(r.lead_level for r in valid if r.conditional_pct == best)
+    print()
+    print(species_mix(slots, lead, target))
+    return best, lead
 
 
 def _pick_from_list(items: list[str], prompt: str) -> int | None:
@@ -342,11 +383,238 @@ def _pick_from_list(items: list[str], prompt: str) -> int | None:
     return int(raw) - 1
 
 
+def load_abilities(path: Path | None = None) -> dict:
+    path = path or ABILITIES_FILE
+    if not path.is_file():
+        return {"species": {}}
+    return json.loads(path.read_text())
+
+
+def nature_matches(
+    plus_idxs: set[int],
+    minus_idxs: set[int],
+    include_neutral: bool,
+) -> list[tuple[str, int | None, int | None]]:
+    """Natures whose + is in plus_idxs (if any) AND - is in minus_idxs (if any)."""
+    out = []
+    for name, up, down in NATURES:
+        if up is None and down is None:
+            if include_neutral:
+                out.append((name, up, down))
+            continue
+        if plus_idxs and up not in plus_idxs:
+            continue
+        if minus_idxs and down not in minus_idxs:
+            continue
+        out.append((name, up, down))
+    return out
+
+
+def format_nature_line(name: str, up: int | None, down: int | None) -> str:
+    if up is None:
+        return f"{name} (neutral)"
+    return f"{name} (+{STAT_KEYS[up]} -{STAT_KEYS[down]})"
+
+
+def encounters_for_chance(p: float, chance: float) -> int:
+    """Smallest k with 1-(1-p)^k >= chance (geometric)."""
+    if p <= 0:
+        return 10**12
+    if p >= 1:
+        return 1
+    # k >= log(1-chance) / log(1-p)
+    import math
+
+    return max(1, math.ceil(math.log(1.0 - chance) / math.log(1.0 - p)))
+
+
+def print_combined_odds(
+    *,
+    species_name: str,
+    species_pct: float,
+    best_lead: int | None,
+    natures: list[tuple[str, int | None, int | None]],
+    ability_label: str,
+    ability_pct: float,
+) -> None:
+    nature_pct = 100.0 * len(natures) / len(NATURES)
+    # percents in, convert to probability factors
+    p_species = species_pct / 100.0
+    p_nature = nature_pct / 100.0
+    p_ability = ability_pct / 100.0
+    p_final = p_species * p_nature * p_ability
+
+    print("Breakdown")
+    print(f"  Species @ best lead")
+    if best_lead is None:
+        print("    (none)")
+    else:
+        print(f"    lead Lv{best_lead}")
+        print(f"    {_pct(species_pct)} of enc")
+    print(f"  Nature ({len(natures)}/25)")
+    print(f"    {_pct(nature_pct)}")
+    for name, up, down in natures:
+        print(f"    - {format_nature_line(name, up, down)}")
+    print(f"  Ability")
+    print(f"    {ability_label}")
+    print(f"    {_pct(ability_pct)}")
+    print()
+    print("Combined")
+    print(f"  {_pct(p_final * 100.0, 4)} per enc")
+    if p_final > 0:
+        n = 1.0 / p_final
+        print(f"  1 in {n:.1f} enc")
+        print()
+        print("Seen by (encounters):")
+        for label, q in (("50%", 0.50), ("75%", 0.75), ("90%", 0.90), ("95%", 0.95)):
+            k = encounters_for_chance(p_final, q)
+            print(f"  {label}: {k}")
+    else:
+        print("  Impossible with these picks")
+
+
+def _multi_pick_stats(prompt: str) -> set[int]:
+    print(prompt)
+    for i, key in enumerate(STAT_KEYS, 1):
+        print(f"  {i}) {key}")
+    print("  0) done")
+    chosen: set[int] = set()
+    while True:
+        raw = input("stat #: ").strip().lower()
+        if raw in ("", "0", "d", "done"):
+            break
+        if not raw.isdigit() or not (1 <= int(raw) <= len(STAT_KEYS)):
+            print("Invalid")
+            continue
+        idx = int(raw) - 1
+        if idx in chosen:
+            chosen.discard(idx)
+            print(f"  removed {STAT_KEYS[idx]}")
+        else:
+            chosen.add(idx)
+            print(f"  added {STAT_KEYS[idx]}")
+    return chosen
+
+
+def prompt_natures(species_pct: float) -> list[tuple[str, int | None, int | None]]:
+    print()
+    print("Nature filter")
+    print("(nice + / nice -)")
+    print()
+    plus = _multi_pick_stats("Stats nice as +")
+    print()
+    minus = _multi_pick_stats("Stats nice as -")
+    print()
+
+    without_neutral = nature_matches(plus, minus, include_neutral=False)
+    # Recommend neutrals when filters are tight or species is already rare.
+    recommend = len(without_neutral) < 5 or species_pct < 15.0
+    default = "Y" if recommend else "N"
+    hint = "recommended" if recommend else "optional"
+    raw = input(f"Include neutrals? [{default}] ({hint}): ").strip().lower()
+    if raw == "":
+        include_neutral = default == "Y"
+    else:
+        include_neutral = raw in ("y", "yes")
+
+    matched = nature_matches(plus, minus, include_neutral)
+    if not plus and not minus and not include_neutral:
+        # No constraints and no neutrals -> empty; treat as all natures.
+        matched = list(NATURES)
+    elif not plus and not minus and include_neutral:
+        matched = list(NATURES)
+
+    print()
+    print(f"Matching natures: {len(matched)}/25")
+    for name, up, down in matched:
+        print(f"  {format_nature_line(name, up, down)}")
+    print(f"Nature rate: {_pct(100.0 * len(matched) / 25)}")
+    return matched
+
+
+def prompt_ability(species_key: str, abilities_data: dict) -> tuple[str, float]:
+    meta = abilities_data.get("species", {}).get(species_key)
+    if not meta:
+        print()
+        print("No ability data for species;")
+        print("assuming Either (100%).")
+        return "Either (unknown)", 100.0
+
+    slot0 = meta["slot0"]
+    slot1 = meta.get("slot1")
+    dual = bool(meta.get("dual"))
+    print()
+    print("Ability")
+    if not dual:
+        print(f"  Only {slot0}")
+        print("  (100% in FR/LG)")
+        return slot0, 100.0
+
+    print(f"  1) {slot0}")
+    print(f"  2) {slot1}")
+    print("  3) Either")
+    while True:
+        raw = input("ability #: ").strip()
+        if raw == "1":
+            return slot0, 50.0
+        if raw == "2":
+            return slot1, 50.0
+        if raw in ("3", "", "0"):
+            return "Either", 100.0
+        print("Invalid")
+
+
+def nature_ability_hunt(
+    species_name: str,
+    species_pct: float,
+    best_lead: int | None,
+    abilities_data: dict,
+) -> None:
+    """Loop nature/ability combos until the user is done."""
+    key = normalize_species(species_name).removeprefix("SPECIES_")
+    print()
+    print("=" * 28)
+    print("Nature / ability hunt")
+    print(f"Species of_enc {_pct(species_pct)}")
+    if best_lead is not None:
+        print(f"Best lead Lv{best_lead}")
+    print("=" * 28)
+
+    while True:
+        natures = prompt_natures(species_pct)
+        if not natures:
+            print("No natures match.")
+            again = input("Try again? [Y/n] ").strip().lower()
+            if again in ("n", "no"):
+                return
+            continue
+        ability_label, ability_pct = prompt_ability(key, abilities_data)
+        print()
+        print_combined_odds(
+            species_name=species_name,
+            species_pct=species_pct,
+            best_lead=best_lead,
+            natures=natures,
+            ability_label=ability_label,
+            ability_pct=ability_pct,
+        )
+        print()
+        print("1) Another combo")
+        print("0) Done")
+        raw = input("> ").strip().lower()
+        if raw in ("0", "d", "done", "q", "n", "no"):
+            return
+
+
+
 def interactive(data: dict, default_version: str = "firered") -> int:
     version = default_version
     method = "land"
+    abilities_data = load_abilities()
     print("FR/LG Repel calculator")
     print(f"Data: {DATA_FILE.name} ({len(data['areas'])} areas)")
+    if abilities_data.get("species"):
+        print(f"Abilities: {ABILITIES_FILE.name}")
     print()
 
     while True:
@@ -440,13 +708,16 @@ def interactive(data: dict, default_version: str = "firered") -> int:
 
         print()
         nice = friendly_map_name(area["id"], area.get("name"))
-        run_analysis(
+        species_pct, best_lead = run_analysis(
             f"{area['id']} — {nice} — {version}/{method}",
             slots,
             target,
         )
+        hunt = input("Nature/ability hunt? [Y/n] ").strip().lower()
+        if hunt not in ("n", "no"):
+            nature_ability_hunt(target, species_pct, best_lead, abilities_data)
         print()
-        again = input("Another? [Y/n] ").strip().lower()
+        again = input("Another area? [Y/n] ").strip().lower()
         if again in ("n", "no"):
             return 0
         print()
@@ -463,6 +734,11 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
     p.add_argument("--list-maps", action="store_true", help="List areas for the version/method")
     p.add_argument("--interactive", action="store_true")
     p.add_argument("--show-slots", action="store_true")
+    p.add_argument(
+        "--hunt",
+        action="store_true",
+        help="After analysis, open nature/ability hunt prompts",
+    )
     return p.parse_args(argv)
 
 
@@ -531,12 +807,16 @@ def main(argv: list[str] | None = None) -> int:
     area, block = hits[0]
     slots = slots_from_block(block, args.method, data["slot_rates"])
     nice = friendly_map_name(area["id"], area.get("name"))
-    run_analysis(
+    species_pct, best_lead = run_analysis(
         f"{area['id']} — {nice} — {args.version}/{args.method}",
         slots,
         args.target,
         show_slots=args.show_slots,
     )
+    if args.hunt:
+        nature_ability_hunt(
+            args.target, species_pct, best_lead, load_abilities()
+        )
     return 0
 
 
