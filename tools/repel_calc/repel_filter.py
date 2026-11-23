@@ -5,8 +5,11 @@ Gen 3 Repel / encounter-rate calculator for FireRed & LeafGreen.
 Ships with encounters.json (exported from the decomp). Pick a map and target
 species — no website copy/paste required.
 
-Pythonista: copy repel_filter.py, encounters.json, and species_abilities.json
+Pythonista (text): copy repel_filter.py, encounters.json, and species_abilities.json
 into one folder, then run repel_filter.py.
+
+Pythonista (tap GUI): also copy repel_gui.py and run that instead — species →
+areas (best vs natural rate) → nature/ability with live odds.
 """
 
 from __future__ import annotations
@@ -128,6 +131,49 @@ def analyze(slots: Iterable[Slot], target: str, leads: Iterable[int]) -> list[Le
             LeadResult(lead, tw, aw, (100.0 * tw / aw) if aw else None)
         )
     return results
+
+
+@dataclass(frozen=True)
+class AreaRateSummary:
+    """Best vs natural (no useful Repel) rates for one area/species."""
+
+    natural_pct: float
+    best_pct: float
+    best_lead: int
+    uses_repel: bool  # True if filtering beats the natural mix
+
+    @property
+    def lead_label(self) -> str:
+        if not self.uses_repel:
+            return "no Repel"
+        return f"lead Lv{self.best_lead}"
+
+
+def summarize_area_rates(slots: list[Slot], target: str) -> AreaRateSummary | None:
+    """Natural of_enc vs best of_enc across leads (pret Repel rule)."""
+    if not slots:
+        return None
+    max_wild = max(max(s.min_level, s.max_level) for s in slots)
+    min_wild = min(min(s.min_level, s.max_level) for s in slots)
+    results = analyze(slots, target, range(1, max_wild + 2))
+    valid = [r for r in results if r.conditional_pct is not None]
+    if not valid:
+        return None
+    # Natural = all wild levels allowed (lead <= min wild).
+    natural = next(r for r in valid if r.lead_level == min_wild)
+    best_pct = max(r.conditional_pct for r in valid)
+    # Prefer highest lead among ties (practical Repel level).
+    best = max(
+        (r for r in valid if r.conditional_pct == best_pct),
+        key=lambda r: r.lead_level,
+    )
+    uses_repel = best_pct > (natural.conditional_pct or 0) + 1e-9
+    return AreaRateSummary(
+        natural_pct=natural.conditional_pct or 0.0,
+        best_pct=best_pct,
+        best_lead=best.lead_level,
+        uses_repel=uses_repel,
+    )
 
 
 def load_data(path: Path | None = None) -> dict:
