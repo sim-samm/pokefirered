@@ -177,29 +177,33 @@ def format_level_list(levels: list[int]) -> str:
     return ",".join(str(lv) for lv in levels)
 
 
+def _pct(value: float, digits: int = 1) -> str:
+    return f"{value:.{digits}f}%"
+
+
 def format_species_summary(slots: list[Slot]) -> str:
-    """Bulbapedia-style aggregates derived from pret slots (not from websites)."""
+    """Species aggregates from pret slots — short lines for phone wraps."""
     by_sp: dict[str, list[Slot]] = defaultdict(list)
     for slot in slots:
         by_sp[slot.species].append(slot)
-    lines = ["Species totals (sum of pret slot rates):"]
+    lines = ["Species totals:"]
     rows = []
     for sp, sp_slots in by_sp.items():
         total, levels = species_aggregate(sp_slots, sp)
         rows.append((total, sp, levels))
     for total, sp, levels in sorted(rows, key=lambda r: (-r[0], r[1])):
-        lines.append(
-            f"  {total:5.1f}%  Lv{format_level_list(levels):<8}  "
-            f"{sp.replace('_', ' ').title()}"
-        )
+        name = sp.replace("_", " ").title()
+        lines.append(f"  {_pct(total)} Lv{format_level_list(levels)}")
+        lines.append(f"    {name}")
     return "\n".join(lines)
 
 
 def format_slots(slots: list[Slot]) -> str:
-    lines = ["Slots (pret land/water weights × per-slot min/max):"]
+    lines = ["Slots (pret weights):"]
     for i, s in enumerate(slots):
         lv = f"{s.min_level}" if s.min_level == s.max_level else f"{s.min_level}-{s.max_level}"
-        lines.append(f"  [{i:2d}] {s.rate:5.1f}%  Lv{lv:<5}  {s.pretty()}")
+        lines.append(f"  [{i}] {_pct(s.rate)} Lv{lv}")
+        lines.append(f"      {s.pretty()}")
     return "\n".join(lines)
 
 
@@ -213,39 +217,39 @@ def _lead_range(levels: list[int]) -> str:
 
 
 def format_results(target: str, results: list[LeadResult]) -> str:
+    """Narrow repel table (~32 cols) for iPhone / Pythonista."""
     name = normalize_species(target).replace("_", " ").title()
     lines = [
-        f"Repel filter analysis for {name}",
-        "(allowed when wild level >= lead level)",
+        f"Repel: {name}",
+        "wild OK if Lv >= lead",
         "",
-        f"{'Lead':>4}  {'P(target|enc)':>14}  {'target wt%':>10}  {'allowed wt%':>11}",
-        "-" * 46,
+        "Lead  of_enc  rolls  thru",
+        "----  ------  -----  ----",
     ]
     for r in results:
-        cond = "  (no enc)" if r.conditional_pct is None else f"{r.conditional_pct:13.4f}%"
+        if r.conditional_pct is None:
+            lines.append(f"{r.lead_level:>4}  (no encounters)")
+            continue
         lines.append(
-            f"{r.lead_level:4d}  {cond:>14}  {r.absolute_pct:9.4f}%  {r.allowed_weight:10.4f}%"
+            f"{r.lead_level:>4}  {_pct(r.conditional_pct):>6}  "
+            f"{_pct(r.absolute_pct):>5}  {_pct(r.allowed_weight, 0):>4}"
         )
     valid = [r for r in results if r.conditional_pct is not None]
     lines.append("")
     if not valid:
-        lines.append("No lead level yields any encounters.")
+        lines.append("No lead yields encounters.")
         return "\n".join(lines)
     best_c = max(r.conditional_pct for r in valid)
     best_a = max(r.absolute_pct for r in valid)
     c_leads = [r.lead_level for r in valid if r.conditional_pct == best_c]
     a_leads = [r.lead_level for r in valid if r.absolute_pct == best_a]
-    lines.append(
-        f"Best conditional rate: lead {_lead_range(c_leads)} -> {best_c:.4f}% are {name}"
-    )
-    lines.append(
-        f"Best absolute weight:  lead {_lead_range(a_leads)} -> {best_a:.4f}% of rolls are {name}"
-    )
+    lines.append(f"Best of_enc: {_lead_range(c_leads)}")
+    lines.append(f"  {_pct(best_c)} are {name}")
+    lines.append(f"Best rolls: {_lead_range(a_leads)}")
+    lines.append(f"  {_pct(best_a)} of land rolls")
     unf = next((r for r in valid if r.allowed_weight >= 99.999), None)
     if unf is not None and unf.conditional_pct == best_c:
-        lines.append(
-            "Repel does not improve this hunt: target is not concentrated in higher-level slots."
-        )
+        lines.append("Repel does not help here.")
     return "\n".join(lines)
 
 
@@ -257,13 +261,36 @@ def species_mix(slots: list[Slot], lead: int, target: str) -> str:
             if lv >= lead:
                 weights[sp] += w
     total = sum(weights.values())
-    lines = [f"Encounter mix at lead Lv{lead}:"]
+    lines = [f"Mix at lead Lv{lead}:"]
     if total <= 0:
         lines.append("  (nothing gets through)")
         return "\n".join(lines)
     for sp, w in sorted(weights.items(), key=lambda kv: (-kv[1], kv[0])):
-        mark = "  <-- target" if sp == target else ""
-        lines.append(f"  {100.0 * w / total:6.2f}%  {sp.replace('_', ' ').title()}{mark}")
+        mark = " *" if sp == target else ""
+        lines.append(f"  {_pct(100.0 * w / total)}")
+        lines.append(f"    {sp.replace('_', ' ').title()}{mark}")
+    return "\n".join(lines)
+
+
+def format_area_choice(
+    index: int,
+    area: dict,
+    *,
+    rate: float | None = None,
+    levels: list[int] | None = None,
+    species_names: list[str] | None = None,
+) -> str:
+    """Multi-line menu entry so phone wrap doesn't smash columns."""
+    nice = friendly_map_name(area["id"], area.get("name"))
+    lines = [f"{index}) {nice}", f"   {area['id']}"]
+    if rate is not None and levels is not None:
+        lines.append(f"   {_pct(rate)} Lv{format_level_list(levels)}")
+    elif species_names:
+        # Keep one short species line; truncate if huge.
+        joined = ", ".join(species_names)
+        if len(joined) > 34:
+            joined = joined[:31] + "..."
+        lines.append(f"   {joined}")
     return "\n".join(lines)
 
 
@@ -271,16 +298,18 @@ def run_analysis(label: str, slots: list[Slot], target: str, show_slots: bool = 
     max_wild = max(max(s.min_level, s.max_level) for s in slots)
     min_wild = min(min(s.min_level, s.max_level) for s in slots)
     results = analyze(slots, target, range(1, max_wild + 2))
-    print(f"Source: {label}")
-    print(f"Wild level range: {min_wild}-{max_wild}")
-    print("Mechanics: Gen 3 Repel (block if wild_level < lead_level)")
+    # Stack source fields — avoid one long wrapped line on phones.
+    print("Source:")
+    for part in label.split(" — "):
+        print(f"  {part}")
+    print(f"Levels: {min_wild}-{max_wild}")
+    print("Repel: wild Lv >= lead")
     print()
     print(format_species_summary(slots))
     tgt_total, tgt_levels = species_aggregate(slots, target)
-    print(
-        f"Target {normalize_species(target).replace('_', ' ').title()}: "
-        f"{tgt_total:g}% at Lv{format_level_list(tgt_levels)}"
-    )
+    print()
+    print(f"Target: {normalize_species(target).replace('_', ' ').title()}")
+    print(f"  {_pct(tgt_total)} Lv{format_level_list(tgt_levels)}")
     print()
     if show_slots:
         print(format_slots(slots))
@@ -296,12 +325,14 @@ def run_analysis(label: str, slots: list[Slot], target: str, show_slots: bool = 
 
 
 def _pick_from_list(items: list[str], prompt: str) -> int | None:
+    """items are multi-line blocks already numbered by the caller."""
     if not items:
         print("No matches.")
         return None
-    width = len(str(len(items)))
-    for i, item in enumerate(items, 1):
-        print(f"  {i:{width}d}) {item}")
+    for i, item in enumerate(items):
+        print(item)
+        if i < len(items) - 1:
+            print()
     raw = input(prompt).strip().lower()
     if raw in ("", "q", "0"):
         return None
@@ -359,23 +390,25 @@ def interactive(data: dict, default_version: str = "firered") -> int:
                 return total
 
             hits = sorted(hits, key=lambda h: (-_hit_rate(h), h[0]["id"]))
-            print(f"{len(hits)} {method} area(s) with {normalize_species(species).title()}:")
+            print(f"{normalize_species(species).title()}")
+            print(f"{len(hits)} {method} areas")
+            print()
         elif choice == "2":
-            q = input("Map filter (blank = all, e.g. ROCK_TUNNEL): ").strip()
+            q = input("Map filter (blank = all): ").strip()
             hits = find_areas(data, version, map_query=q or None, method=method)
-            print(f"{len(hits)} matching area(s):")
+            print(f"{len(hits)} areas")
+            print()
         else:
             print("Invalid choice.\n")
             continue
 
         labels = []
-        for a, b in hits:
-            nice = friendly_map_name(a["id"], a.get("name"))
+        for i, (a, b) in enumerate(hits, 1):
             if choice == "1" and target_hint:
                 slots = slots_from_block(b, method, data["slot_rates"])
                 total, levels = species_aggregate(slots, target_hint)
                 labels.append(
-                    f"{a['id']} ({nice}) — {total:g}% Lv{format_level_list(levels)}"
+                    format_area_choice(i, a, rate=total, levels=levels)
                 )
             else:
                 names = sorted(
@@ -384,7 +417,7 @@ def interactive(data: dict, default_version: str = "firered") -> int:
                         for r in b[method]
                     }
                 )
-                labels.append(f"{a['id']} ({nice})  [{', '.join(names)}]")
+                labels.append(format_area_choice(i, a, species_names=names))
 
         idx = _pick_from_list(labels, "Area #: ")
         if idx is None:
@@ -397,7 +430,9 @@ def interactive(data: dict, default_version: str = "firered") -> int:
             target = target_hint
         else:
             print("Species on this map:")
-            sidx = _pick_from_list(species_on_map, "Target #: ")
+            print()
+            sp_labels = [f"{i}) {name}" for i, name in enumerate(species_on_map, 1)]
+            sidx = _pick_from_list(sp_labels, "Target #: ")
             if sidx is None:
                 print()
                 continue
@@ -406,7 +441,7 @@ def interactive(data: dict, default_version: str = "firered") -> int:
         print()
         nice = friendly_map_name(area["id"], area.get("name"))
         run_analysis(
-            f"{area['id']} — {nice} ({version}, {method})",
+            f"{area['id']} — {nice} — {version}/{method}",
             slots,
             target,
         )
@@ -454,27 +489,30 @@ def main(argv: list[str] | None = None) -> int:
             return total
 
         hits = sorted(hits, key=lambda h: (-_rate(h), h[0]["id"]))
-        print(
-            f"{args.method} areas with {normalize_species(args.find).title()} "
-            f"({args.version}) — rates from pret slots:"
-        )
-        for area, block in hits:
+        print(normalize_species(args.find).title())
+        print(f"{args.version} / {args.method}")
+        print(f"{len(hits)} areas (pret slots)")
+        print()
+        if not hits:
+            print("(none)")
+            return 0
+        for i, (area, block) in enumerate(hits, 1):
             slots = slots_from_block(block, args.method, data["slot_rates"])
             total, levels = species_aggregate(slots, args.find)
-            nice = friendly_map_name(area["id"], area.get("name"))
-            print(
-                f"  {area['id']:<28} {nice:<22} {total:5.1f}%  "
-                f"Lv{format_level_list(levels)}"
-            )
-        if not hits:
-            print("  (none)")
+            print(format_area_choice(i, area, rate=total, levels=levels))
+            if i < len(hits):
+                print()
         return 0
 
     if args.list_maps:
         hits = find_areas(data, args.version, method=args.method)
-        print(f"{args.method} areas ({args.version}, {len(hits)}):")
-        for area, _ in hits:
-            print(f"  {area['id']}  ({area['name']})")
+        print(f"{args.method} / {args.version}")
+        print(f"{len(hits)} areas")
+        print()
+        for i, (area, _) in enumerate(hits, 1):
+            print(format_area_choice(i, area))
+            if i < len(hits):
+                print()
         return 0
 
     if not args.map or not args.target:
@@ -494,7 +532,7 @@ def main(argv: list[str] | None = None) -> int:
     slots = slots_from_block(block, args.method, data["slot_rates"])
     nice = friendly_map_name(area["id"], area.get("name"))
     run_analysis(
-        f"{area['id']} — {nice} ({args.version}, {args.method})",
+        f"{area['id']} — {nice} — {args.version}/{args.method}",
         slots,
         args.target,
         show_slots=args.show_slots,
