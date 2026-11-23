@@ -113,6 +113,10 @@ def textfield_should_return(self, textfield):
 - Forum archive: https://omz-software.com/forum/archive/
 - LLM-oriented synthesis (pyui / flex / anti-patterns): https://github.com/jgwill/llms-txt (llms-ui-pythonista-guide)
 
+## Phone-width toggles
+
+`ui.SegmentedControl` often lays out wider than the visible content on phones, so only the first segment shows. Prefer equal-width `ui.Button` rows sized with `ui.get_screen_size()[0] - 2*pad`, or force the segment control’s frame width to that same content width before present. Keep segment labels short.
+
 ## Anti-patterns checklist
 
 - [ ] No one-arg `layout` assigned onto a view
@@ -121,3 +125,4 @@ def textfield_should_return(self, textfield):
 - [ ] No full unbounded list on first paint for phone UIs
 - [ ] No hard dependency on `ui` inside shared logic modules
 - [ ] Actions/delegates attached (`action=`, `delegate=`) for every interactive control
+- [ ] Top toggles fit phone width (both options visible; avoid oversized SegmentedControl)
