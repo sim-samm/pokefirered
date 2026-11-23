@@ -32,6 +32,61 @@ def _console(msg):
     print("[repel_gui] " + str(msg))
 
 
+def _screen_width():
+    """Usable content width inside a fullscreen NavigationView (portrait)."""
+    if ui is None:
+        return 320
+    try:
+        w, _h = ui.get_screen_size()
+        # Leave room for nav chrome / safe area; never wider than the phone.
+        return max(280, min(int(w), 430))
+    except Exception:
+        return 320
+
+
+def _content_width():
+    return _screen_width() - 2 * PAD
+
+
+def _make_toggle(titles, selected_index, action, y):
+    """
+    Equal-width toggle buttons (phone-safe).
+
+    ui.SegmentedControl often lays out too wide on small screens so only the
+    first segment is visible — two/three Buttons avoid that.
+    """
+    cw = _content_width()
+    n = len(titles)
+    gap = 6
+    bw = (cw - gap * (n - 1)) / float(n)
+    row = ui.View(frame=(PAD, y, cw, BTN_H), flex="W")
+    buttons = []
+    for i, title in enumerate(titles):
+        b = ui.Button(
+            title=title,
+            frame=(i * (bw + gap), 0, bw, BTN_H),
+            font=("<system>", 13),
+            border_width=1,
+            border_color="#CCCCCC",
+            corner_radius=6,
+            action=action,
+        )
+        b.name = "toggle_%d" % i
+        row.add_subview(b)
+        buttons.append(b)
+
+    def paint(idx):
+        for i, b in enumerate(buttons):
+            on = i == idx
+            b.background_color = "#007AFF" if on else "#F2F2F7"
+            b.tint_color = "white" if on else "#111111"
+
+    paint(selected_index)
+    row.paint = paint  # type: ignore[attr-defined]
+    row.buttons = buttons  # type: ignore[attr-defined]
+    return row
+
+
 def _show_message(title, message):
     """Present a simple full-screen message. Never SystemExit after this."""
     _console(title + ": " + message[:200])
@@ -145,18 +200,19 @@ class RepelApp(object):
     def _make_species_view(self):
         v = ui.View(name="Species")
         v.background_color = "white"
+        cw = _content_width()
+        sw = _screen_width()
+        y = PAD
 
-        seg = ui.SegmentedControl(
-            frame=(PAD, PAD, 304, BTN_H),
-            flex="W",
-            segments=["FireRed", "LeafGreen"],
-            selected_index=0,
-            action=self._on_version,
+        version_row = _make_toggle(
+            ["FireRed", "LeafGreen"], 0, self._on_version, y
         )
-        v.add_subview(seg)
+        v.add_subview(version_row)
+        self._version_row = version_row
+        y += BTN_H + 8
 
         field = ui.TextField(
-            frame=(PAD, PAD + BTN_H + 8, 304, BTN_H),
+            frame=(PAD, y, cw, BTN_H),
             flex="W",
             placeholder="Type a species name",
             clear_button_mode="while_editing",
@@ -165,9 +221,10 @@ class RepelApp(object):
         )
         field.name = "search"
         v.add_subview(field)
+        y += BTN_H + 6
 
         hint = ui.Label(
-            frame=(PAD, PAD + 2 * (BTN_H + 8), 304, 40),
+            frame=(PAD, y, cw, 40),
             flex="W",
             number_of_lines=2,
             font=("<system>", 13),
@@ -176,9 +233,10 @@ class RepelApp(object):
         )
         hint.name = "hint"
         v.add_subview(hint)
+        y += 44
 
         tv = ui.TableView(
-            frame=(0, 140, 320, 400),
+            frame=(0, y, sw, 400),
             flex="WH",
             row_height=44,
         )
@@ -200,7 +258,9 @@ class RepelApp(object):
         return True
 
     def _on_version(self, sender):
-        self.version = "firered" if sender.selected_index == 0 else "leafgreen"
+        idx = int(sender.name.split("_")[1])
+        self.version = "firered" if idx == 0 else "leafgreen"
+        self._version_row.paint(idx)
         self._reload_species_list()
 
     def _species_names(self):
@@ -261,9 +321,12 @@ class RepelApp(object):
     def _make_areas_view(self):
         v = ui.View(name=self.species)
         v.background_color = "white"
+        cw = _content_width()
+        sw = _screen_width()
+        y = PAD
 
         hint = ui.Label(
-            frame=(PAD, PAD, 304, 36),
+            frame=(PAD, y, cw, 36),
             flex="W",
             number_of_lines=2,
             font=("<system>", 12),
@@ -271,18 +334,18 @@ class RepelApp(object):
             text="Best = highest of_enc (with or without Repel)",
         )
         v.add_subview(hint)
+        y += 40
 
-        seg = ui.SegmentedControl(
-            frame=(PAD, PAD + 40, 304, BTN_H),
-            flex="W",
-            segments=["Best rate", "Natural"],
-            selected_index=0 if self.sort_mode == "best" else 1,
-            action=self._on_sort,
+        sort_idx = 0 if self.sort_mode == "best" else 1
+        sort_row = _make_toggle(
+            ["Best rate", "Natural"], sort_idx, self._on_sort, y
         )
-        v.add_subview(seg)
+        v.add_subview(sort_row)
+        self._sort_row = sort_row
+        y += BTN_H + 8
 
         tv = ui.TableView(
-            frame=(0, PAD + 40 + BTN_H + 8, 320, 400),
+            frame=(0, y, sw, 400),
             flex="WH",
             row_height=60,
         )
@@ -297,7 +360,9 @@ class RepelApp(object):
         return v
 
     def _on_sort(self, sender):
-        self.sort_mode = "best" if sender.selected_index == 0 else "natural"
+        idx = int(sender.name.split("_")[1])
+        self.sort_mode = "best" if idx == 0 else "natural"
+        self._sort_row.paint(idx)
         self._reload_areas()
 
     def _reload_areas(self):
@@ -341,19 +406,21 @@ class RepelApp(object):
         row = self.area_row
         v = ui.View(name=row["title"])
         v.background_color = "white"
+        cw = _content_width()
+        sw = _screen_width()
 
         scroll = ui.ScrollView(
-            frame=(0, 0, 320, 500),
+            frame=(0, 0, sw, 500),
             flex="WH",
             background_color="white",
         )
         v.add_subview(scroll)
 
-        content = ui.View(frame=(0, 0, 320, 900), background_color="white")
+        content = ui.View(frame=(0, 0, sw, 900), background_color="white")
         scroll.add_subview(content)
 
         y = PAD
-        w = 304
+        w = cw
 
         def add_label(text, bold=False, height=22):
             nonlocal y
@@ -402,9 +469,9 @@ class RepelApp(object):
         y += 168
 
         add_label("Ability", bold=True)
-        abil = ui.SegmentedControl(frame=(PAD, y, w, BTN_H), flex="W")
-        abil.action = self._on_ability
-        content.add_subview(abil)
+        # Placeholder row; filled by _setup_ability_segments
+        abil_host = ui.View(frame=(PAD, y, w, BTN_H), flex="W")
+        content.add_subview(abil_host)
         y += BTN_H + 12
 
         odds_lab = ui.Label(
@@ -417,13 +484,16 @@ class RepelApp(object):
         y += 240
 
         content.height = y + 40
-        scroll.content_size = (320, content.height)
+        scroll.content_size = (sw, content.height)
 
         self._hunt = {
             "neut_lab": neut_lab,
             "natures_lab": natures_lab,
-            "abil_seg": abil,
+            "abil_host": abil_host,
+            "abil_y": abil_host.frame[1],
             "odds_lab": odds_lab,
+            "content": content,
+            "scroll": scroll,
         }
         self._setup_ability_segments()
         self._refresh_hunt()
@@ -431,7 +501,7 @@ class RepelApp(object):
 
     def _build_stat_row(self, row, which):
         n = len(self.rf.STAT_KEYS)
-        total_w = 304
+        total_w = _content_width()
         gap = 4
         bw = (total_w - gap * (n - 1)) / float(n)
         for i, key in enumerate(self.rf.STAT_KEYS):
@@ -475,33 +545,75 @@ class RepelApp(object):
         meta = self.abilities.get("species", {}).get(
             _species_key(self.rf, self.species)
         )
-        seg = self._hunt["abil_seg"]
+        host = self._hunt["abil_host"]
+        # Clear previous buttons
+        for sub in list(host.subviews):
+            sub.remove_from_superview()
+
         if not meta:
-            seg.segments = ["Either"]
-            seg.selected_index = 0
-            seg.enabled = False
+            titles = ["Either"]
+            selected = 0
             self.ability_choice = "either"
-            return
-        if not meta.get("dual"):
-            seg.segments = [meta["slot0"]]
-            seg.selected_index = 0
-            seg.enabled = False
+            self._abil_choices = ["either"]
+        elif not meta.get("dual"):
+            titles = [meta["slot0"]]
+            selected = 0
             self.ability_choice = "0"
-            return
-        seg.enabled = True
-        seg.segments = [meta["slot0"], meta["slot1"], "Either"]
-        seg.selected_index = 2
-        self.ability_choice = "either"
+            self._abil_choices = ["0"]
+        else:
+            # Short labels when names are long so 3 fit on a phone.
+            a0 = meta["slot0"]
+            a1 = meta["slot1"]
+            titles = [a0, a1, "Either"]
+            selected = 2
+            self.ability_choice = "either"
+            self._abil_choices = ["0", "1", "either"]
+
+        # Build equal-width buttons into the host (host already padded).
+        n = len(titles)
+        gap = 6
+        cw = host.width if host.width > 1 else _content_width()
+        bw = (cw - gap * (n - 1)) / float(n)
+        buttons = []
+        for i, title in enumerate(titles):
+            # Truncate very long ability names for the button title.
+            label = title if len(title) <= 12 else (title[:11] + "…")
+            b = ui.Button(
+                title=label,
+                frame=(i * (bw + gap), 0, bw, BTN_H),
+                font=("<system>", 12),
+                border_width=1,
+                border_color="#CCCCCC",
+                corner_radius=6,
+                action=self._on_ability,
+            )
+            b.name = "abil_%d" % i
+            host.add_subview(b)
+            buttons.append(b)
+
+        def paint(idx):
+            for i, b in enumerate(buttons):
+                on = i == idx
+                b.background_color = "#007AFF" if on else "#F2F2F7"
+                b.tint_color = "white" if on else "#111111"
+                # Single-option rows stay selected but look neutral-enabled.
+                if len(buttons) == 1:
+                    b.background_color = "#F2F2F7"
+                    b.tint_color = "#111111"
+
+        paint(selected)
+        self._hunt["abil_paint"] = paint
+        self._hunt["abil_buttons"] = buttons
 
     def _on_ability(self, sender):
-        meta = self.abilities.get("species", {}).get(
-            _species_key(self.rf, self.species)
-        ) or {}
-        if not meta.get("dual"):
-            self.ability_choice = "0"
-        else:
-            mapping = {0: "0", 1: "1", 2: "either"}
-            self.ability_choice = mapping.get(sender.selected_index, "either")
+        idx = int(sender.name.split("_")[1])
+        choices = getattr(self, "_abil_choices", ["either"])
+        if idx < 0 or idx >= len(choices):
+            return
+        self.ability_choice = choices[idx]
+        paint = self._hunt.get("abil_paint")
+        if paint:
+            paint(idx)
         self._refresh_hunt()
 
     def _current_natures(self):
