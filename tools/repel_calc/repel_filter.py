@@ -140,8 +140,50 @@ def find_areas(
     return hits
 
 
+def species_aggregate(slots: list[Slot], species: str) -> tuple[float, list[int]]:
+    """Sum pret slot rates for one species; collect distinct levels."""
+    species = normalize_species(species)
+    total = 0.0
+    levels: set[int] = set()
+    for slot in slots:
+        if slot.species != species:
+            continue
+        total += slot.rate
+        levels.update(slot.levels())
+    return total, sorted(levels)
+
+
+def format_level_list(levels: list[int]) -> str:
+    if not levels:
+        return "?"
+    if len(levels) == 1:
+        return str(levels[0])
+    # Contiguous range -> "15-18"; otherwise comma list.
+    if levels[-1] - levels[0] + 1 == len(levels):
+        return f"{levels[0]}-{levels[-1]}"
+    return ",".join(str(lv) for lv in levels)
+
+
+def format_species_summary(slots: list[Slot]) -> str:
+    """Bulbapedia-style aggregates derived from pret slots (not from websites)."""
+    by_sp: dict[str, list[Slot]] = defaultdict(list)
+    for slot in slots:
+        by_sp[slot.species].append(slot)
+    lines = ["Species totals (sum of pret slot rates):"]
+    rows = []
+    for sp, sp_slots in by_sp.items():
+        total, levels = species_aggregate(sp_slots, sp)
+        rows.append((total, sp, levels))
+    for total, sp, levels in sorted(rows, key=lambda r: (-r[0], r[1])):
+        lines.append(
+            f"  {total:5.1f}%  Lv{format_level_list(levels):<8}  "
+            f"{sp.replace('_', ' ').title()}"
+        )
+    return "\n".join(lines)
+
+
 def format_slots(slots: list[Slot]) -> str:
-    lines = ["Slots (rate%  levels  species):"]
+    lines = ["Slots (pret land/water weights × per-slot min/max):"]
     for i, s in enumerate(slots):
         lv = f"{s.min_level}" if s.min_level == s.max_level else f"{s.min_level}-{s.max_level}"
         lines.append(f"  [{i:2d}] {s.rate:5.1f}%  Lv{lv:<5}  {s.pretty()}")
@@ -220,6 +262,13 @@ def run_analysis(label: str, slots: list[Slot], target: str, show_slots: bool = 
     print(f"Wild level range: {min_wild}-{max_wild}")
     print("Mechanics: Gen 3 Repel (block if wild_level < lead_level)")
     print()
+    print(format_species_summary(slots))
+    tgt_total, tgt_levels = species_aggregate(slots, target)
+    print(
+        f"Target {normalize_species(target).replace('_', ' ').title()}: "
+        f"{tgt_total:g}% at Lv{format_level_list(tgt_levels)}"
+    )
+    print()
     if show_slots:
         print(format_slots(slots))
         print()
@@ -288,6 +337,15 @@ def interactive(data: dict, default_version: str = "firered") -> int:
                 continue
             hits = find_areas(data, version, species=species, method=method)
             target_hint = species
+            # Sort by pret aggregate rate (high first) so Route 8 Growlithe
+            # (20%) appears before Route 7 (10%), matching common hunt guides.
+            def _hit_rate(item: tuple[dict, dict]) -> float:
+                area, block = item
+                slots = slots_from_block(block, method, data["slot_rates"])
+                total, _ = species_aggregate(slots, species)
+                return total
+
+            hits = sorted(hits, key=lambda h: (-_hit_rate(h), h[0]["id"]))
             print(f"{len(hits)} {method} area(s) with {normalize_species(species).title()}:")
         elif choice == "2":
             q = input("Map filter (blank = all, e.g. ROCK_TUNNEL): ").strip()
@@ -297,18 +355,22 @@ def interactive(data: dict, default_version: str = "firered") -> int:
             print("Invalid choice.\n")
             continue
 
-        labels = [
-            f"{a['id']} — {a['name']}"
-            + (
-                f"  [{', '.join(sorted({normalize_species(r[0]).replace('_',' ').title() for r in b[method]}))}]"
-                if choice == "2"
-                else ""
-            )
-            for a, b in hits
-        ]
-        # For species search, keep labels shorter
-        if choice == "1":
-            labels = [f"{a['id']} — {a['name']}" for a, _ in hits]
+        labels = []
+        for a, b in hits:
+            if choice == "1" and target_hint:
+                slots = slots_from_block(b, method, data["slot_rates"])
+                total, levels = species_aggregate(slots, target_hint)
+                labels.append(
+                    f"{a['id']} — {total:g}% Lv{format_level_list(levels)}"
+                )
+            else:
+                names = sorted(
+                    {
+                        normalize_species(r[0]).replace("_", " ").title()
+                        for r in b[method]
+                    }
+                )
+                labels.append(f"{a['id']} — {a['name']}  [{', '.join(names)}]")
 
         idx = _pick_from_list(labels, "Area #: ")
         if idx is None:
@@ -365,9 +427,24 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.find:
         hits = find_areas(data, args.version, species=args.find, method=args.method)
-        print(f"{args.method} areas with {normalize_species(args.find).title()} ({args.version}):")
-        for area, _ in hits:
-            print(f"  {area['id']}  ({area['name']})")
+
+        def _rate(item: tuple[dict, dict]) -> float:
+            _, block = item
+            slots = slots_from_block(block, args.method, data["slot_rates"])
+            total, _ = species_aggregate(slots, args.find)
+            return total
+
+        hits = sorted(hits, key=lambda h: (-_rate(h), h[0]["id"]))
+        print(
+            f"{args.method} areas with {normalize_species(args.find).title()} "
+            f"({args.version}) — rates from pret slots:"
+        )
+        for area, block in hits:
+            slots = slots_from_block(block, args.method, data["slot_rates"])
+            total, levels = species_aggregate(slots, args.find)
+            print(
+                f"  {area['id']:<32} {total:5.1f}%  Lv{format_level_list(levels)}"
+            )
         if not hits:
             print("  (none)")
         return 0
