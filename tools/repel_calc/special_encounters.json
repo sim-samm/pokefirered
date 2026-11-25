@@ -1,0 +1,174 @@
+{
+  "source": "data/maps/*/scripts.inc (givemon / setwildbattle / giveegg) + Oaks Lab starters",
+  "note": "One-time or fixed obtains — not wild grass tables. rate is always 100%.",
+  "entries": [
+    {
+      "species": "BULBASAUR",
+      "kind": "gift",
+      "map_id": "PALLET_TOWN_PROFESSOR_OAKS_LAB",
+      "name": "Pallet Town — Oak's Lab",
+      "level": 5,
+      "note": "Starter choice (mutually exclusive)"
+    },
+    {
+      "species": "CHARMANDER",
+      "kind": "gift",
+      "map_id": "PALLET_TOWN_PROFESSOR_OAKS_LAB",
+      "name": "Pallet Town — Oak's Lab",
+      "level": 5,
+      "note": "Starter choice (mutually exclusive)"
+    },
+    {
+      "species": "SQUIRTLE",
+      "kind": "gift",
+      "map_id": "PALLET_TOWN_PROFESSOR_OAKS_LAB",
+      "name": "Pallet Town — Oak's Lab",
+      "level": 5,
+      "note": "Starter choice (mutually exclusive)"
+    },
+    {
+      "species": "MAGIKARP",
+      "kind": "gift",
+      "map_id": "ROUTE4_POKEMON_CENTER_1F",
+      "name": "Route 4 — Pokémon Center",
+      "level": 5,
+      "note": "Buy for ¥500"
+    },
+    {
+      "species": "EEVEE",
+      "kind": "gift",
+      "map_id": "CELADON_CITY_CONDOMINIUMS_ROOF_ROOM",
+      "name": "Celadon City — Condominiums roof",
+      "level": 25,
+      "note": "Poké Ball on the table"
+    },
+    {
+      "species": "HITMONLEE",
+      "kind": "gift",
+      "map_id": "SAFFRON_CITY_DOJO",
+      "name": "Saffron City — Fighting Dojo",
+      "level": 25,
+      "note": "Dojo prize (vs Hitmonchan)"
+    },
+    {
+      "species": "HITMONCHAN",
+      "kind": "gift",
+      "map_id": "SAFFRON_CITY_DOJO",
+      "name": "Saffron City — Fighting Dojo",
+      "level": 25,
+      "note": "Dojo prize (vs Hitmonlee)"
+    },
+    {
+      "species": "LAPRAS",
+      "kind": "gift",
+      "map_id": "SILPH_CO_7F",
+      "name": "Silph Co. 7F",
+      "level": 25,
+      "note": "Gift from worker after Rival"
+    },
+    {
+      "species": "OMANYTE",
+      "kind": "gift",
+      "map_id": "CINNABAR_ISLAND_POKEMON_LAB_EXPERIMENT_ROOM",
+      "name": "Cinnabar Lab — Experiment Room",
+      "level": 5,
+      "note": "Revive Helix Fossil (vs Kabuto)"
+    },
+    {
+      "species": "KABUTO",
+      "kind": "gift",
+      "map_id": "CINNABAR_ISLAND_POKEMON_LAB_EXPERIMENT_ROOM",
+      "name": "Cinnabar Lab — Experiment Room",
+      "level": 5,
+      "note": "Revive Dome Fossil (vs Omanyte)"
+    },
+    {
+      "species": "AERODACTYL",
+      "kind": "gift",
+      "map_id": "CINNABAR_ISLAND_POKEMON_LAB_EXPERIMENT_ROOM",
+      "name": "Cinnabar Lab — Experiment Room",
+      "level": 5,
+      "note": "Revive Old Amber"
+    },
+    {
+      "species": "TOGEPI",
+      "kind": "egg",
+      "map_id": "FIVE_ISLAND_WATER_LABYRINTH",
+      "name": "Five Island — Water Labyrinth",
+      "level": 5,
+      "note": "Egg gift"
+    },
+    {
+      "species": "SNORLAX",
+      "kind": "static",
+      "map_id": "ROUTE12",
+      "name": "Route 12",
+      "level": 30,
+      "note": "Poké Flute; one-time battle"
+    },
+    {
+      "species": "SNORLAX",
+      "kind": "static",
+      "map_id": "ROUTE16",
+      "name": "Route 16",
+      "level": 30,
+      "note": "Poké Flute; one-time battle"
+    },
+    {
+      "species": "MAROWAK",
+      "kind": "static",
+      "map_id": "POKEMON_TOWER_6F",
+      "name": "Pokémon Tower 6F",
+      "level": 30,
+      "note": "Ghost Marowak; one-time"
+    },
+    {
+      "species": "ELECTRODE",
+      "kind": "static",
+      "map_id": "POWER_PLANT",
+      "name": "Power Plant",
+      "level": 34,
+      "note": "Two one-time Electrode encounters"
+    },
+    {
+      "species": "ARTICUNO",
+      "kind": "static",
+      "map_id": "SEAFOAM_ISLANDS_B4F",
+      "name": "Seafoam Islands B4F",
+      "level": 50,
+      "note": "Legendary; one-time"
+    },
+    {
+      "species": "ZAPDOS",
+      "kind": "static",
+      "map_id": "POWER_PLANT",
+      "name": "Power Plant",
+      "level": 50,
+      "note": "Legendary; one-time"
+    },
+    {
+      "species": "MOLTRES",
+      "kind": "static",
+      "map_id": "MT_EMBER_SUMMIT",
+      "name": "Mt. Ember Summit",
+      "level": 50,
+      "note": "Legendary; one-time"
+    },
+    {
+      "species": "MEWTWO",
+      "kind": "static",
+      "map_id": "CERULEAN_CAVE_B1F",
+      "name": "Cerulean Cave B1F",
+      "level": 70,
+      "note": "Legendary; one-time"
+    },
+    {
+      "species": "HYPNO",
+      "kind": "static",
+      "map_id": "THREE_ISLAND_BERRY_FOREST",
+      "name": "Three Island — Berry Forest",
+      "level": 30,
+      "note": "One-time static"
+    }
+  ]
+}
