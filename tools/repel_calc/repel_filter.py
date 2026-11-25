@@ -10,6 +10,9 @@ into one folder, then run repel_filter.py.
 
 Pythonista (tap GUI): also copy repel_gui.py and run that instead — species →
 areas (best vs natural rate) → nature/ability with live odds.
+
+Special (gift/static/egg) obtains live under encounters.json["special"] and
+show as 100% locations (Repel N/A). Curated in special_encounters.json.
 """
 
 from __future__ import annotations
@@ -174,6 +177,41 @@ def summarize_area_rates(slots: list[Slot], target: str) -> AreaRateSummary | No
         best_lead=best.lead_level,
         uses_repel=uses_repel,
     )
+
+
+def special_summary(level: int) -> AreaRateSummary:
+    """Gifts / statics are a fixed obtain — 100%, Repel does not apply."""
+    return AreaRateSummary(
+        natural_pct=100.0,
+        best_pct=100.0,
+        best_lead=level,
+        uses_repel=False,
+    )
+
+
+def special_entries(data: dict, species: str | None = None) -> list[dict]:
+    """Curated non-wild obtains (gift / static / egg)."""
+    sp = normalize_species(species) if species else None
+    if sp and sp.startswith("SPECIES_"):
+        sp = sp[len("SPECIES_") :]
+    out = []
+    for entry in data.get("special") or []:
+        esp = normalize_species(entry["species"])
+        if esp.startswith("SPECIES_"):
+            esp = esp[len("SPECIES_") :]
+        if sp and esp != sp:
+            continue
+        out.append(entry)
+    return out
+
+
+def special_kind_label(kind: str) -> str:
+    return {
+        "static": "static 100%",
+        "gift": "gift 100%",
+        "egg": "egg 100%",
+        "choice": "choice 100%",
+    }.get(kind, f"{kind} 100%")
 
 
 def load_data(path: Path | None = None) -> dict:
@@ -697,6 +735,7 @@ def interactive(data: dict, default_version: str = "firered") -> int:
             if not species:
                 continue
             hits = find_areas(data, version, species=species, method=method)
+            specials = special_entries(data, species)
             target_hint = species
             # Sort by pret aggregate rate (high first) so Route 8 Growlithe
             # (20%) appears before Route 7 (10%), matching common hunt guides.
@@ -708,8 +747,55 @@ def interactive(data: dict, default_version: str = "firered") -> int:
 
             hits = sorted(hits, key=lambda h: (-_hit_rate(h), h[0]["id"]))
             print(f"{normalize_species(species).title()}")
-            print(f"{len(hits)} {method} areas")
+            print(f"{len(hits)} {method} areas", end="")
+            if specials:
+                print(f", {len(specials)} special", end="")
             print()
+            print()
+            if specials and not hits:
+                # Special-only species (Eevee, Mewtwo, …): pick a location.
+                labels = []
+                for i, ent in enumerate(specials, 1):
+                    kind = special_kind_label(ent.get("kind", "special"))
+                    lv = ent.get("level", "?")
+                    note = ent.get("note") or ""
+                    title = ent.get("name") or friendly_map_name(ent["map_id"])
+                    line = f"{i}) {title}\n   {kind} Lv{lv}"
+                    if note:
+                        line += f"\n   {note}"
+                    labels.append(line)
+                idx = _pick_from_list(labels, "Location #: ")
+                if idx is None:
+                    print()
+                    continue
+                ent = specials[idx]
+                print()
+                print(f"{ent.get('name') or ent['map_id']} — {special_kind_label(ent.get('kind', 'special'))}")
+                print(f"Lv{ent.get('level', '?')} · Repel N/A · of_enc 100%")
+                if ent.get("note"):
+                    print(ent["note"])
+                print()
+                nature_ability_hunt(
+                    species, 100.0, ent.get("level"), abilities_data
+                )
+                print()
+                print("Next:")
+                print("1) Another species/area")
+                print("0) Quit")
+                again = input("> ").strip().lower()
+                if again in ("0", "q", "quit", "n", "no"):
+                    return 0
+                print()
+                continue
+            if specials:
+                print("Also special (not wild slots):")
+                for ent in specials:
+                    kind = special_kind_label(ent.get("kind", "special"))
+                    title = ent.get("name") or friendly_map_name(ent["map_id"])
+                    print(f"  {title} — {kind} Lv{ent.get('level', '?')}")
+                    if ent.get("note"):
+                        print(f"    {ent['note']}")
+                print()
         elif choice == "2":
             q = input("Map filter (blank = all): ").strip()
             hits = find_areas(data, version, map_query=q or None, method=method)

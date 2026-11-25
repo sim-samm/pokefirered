@@ -12,6 +12,7 @@ HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[1]
 DEFAULT_SRC = REPO_ROOT / "src" / "data" / "wild_encounters.json"
 DEFAULT_OUT = HERE / "encounters.json"
+DEFAULT_SPECIAL = HERE / "special_encounters.json"
 DEFAULT_ABILITIES_OUT = HERE / "species_abilities.json"
 SPECIES_INFO = REPO_ROOT / "src" / "data" / "pokemon" / "species_info.h"
 ABILITY_NAMES = REPO_ROOT / "src" / "data" / "text" / "abilities.h"
@@ -105,8 +106,28 @@ def export(src_path: Path, out_path: Path) -> None:
         },
         "areas": collapsed,
     }
+    # Merge curated gifts / statics (not in wild_encounters.json).
+    special_path = DEFAULT_SPECIAL
+    if special_path.is_file():
+        special = json.loads(special_path.read_text())
+        payload["special"] = special.get("entries", [])
+        payload["special_source"] = special.get("source", str(special_path.name))
+    elif out_path.is_file():
+        # Preserve previous specials if the curated file is missing.
+        try:
+            prev = json.loads(out_path.read_text())
+            if prev.get("special"):
+                payload["special"] = prev["special"]
+                if prev.get("special_source"):
+                    payload["special_source"] = prev["special_source"]
+        except Exception:
+            pass
     out_path.write_text(json.dumps(payload, separators=(",", ":")))
-    print(f"Wrote {out_path} ({out_path.stat().st_size} bytes, {len(collapsed)} areas)")
+    n_special = len(payload.get("special", []))
+    print(
+        f"Wrote {out_path} ({out_path.stat().st_size} bytes, "
+        f"{len(collapsed)} areas, {n_special} special)"
+    )
 
 
 def export_abilities(species_info: Path, ability_names: Path, out_path: Path) -> None:

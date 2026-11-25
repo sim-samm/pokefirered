@@ -111,6 +111,10 @@ def _species_key(rf, name):
     return key
 
 
+def _pretty_species(sp):
+    return sp.replace("_", " ").title()
+
+
 def _all_species(rf, data, version):
     names = set()
     for area in data["areas"]:
@@ -118,7 +122,9 @@ def _all_species(rf, data, version):
         if not block or METHOD not in block:
             continue
         for sp, _, _ in block[METHOD]:
-            names.add(rf.normalize_species(sp).replace("_", " ").title())
+            names.add(_pretty_species(rf.normalize_species(sp)))
+    for ent in data.get("special") or []:
+        names.add(_pretty_species(rf.normalize_species(ent["species"])))
     return sorted(names)
 
 
@@ -136,6 +142,28 @@ def _area_rows(rf, data, version, species):
                 "summary": summary,
                 "title": rf.friendly_map_name(area["id"], area.get("name")),
                 "id": area["id"],
+                "special": False,
+            }
+        )
+    for ent in rf.special_entries(data, species):
+        level = int(ent.get("level") or 1)
+        kind = rf.special_kind_label(ent.get("kind", "special"))
+        note = ent.get("note") or ""
+        title = ent.get("name") or rf.friendly_map_name(ent["map_id"])
+        if note:
+            title = "%s (%s)" % (title, note)
+        rows.append(
+            {
+                "area": {
+                    "id": ent["map_id"],
+                    "name": ent.get("name") or ent["map_id"],
+                },
+                "slots": [],
+                "summary": rf.special_summary(level),
+                "title": title,
+                "id": "special:%s:%s" % (ent["map_id"], ent["species"]),
+                "special": True,
+                "kind_label": kind,
             }
         )
     return rows
@@ -147,10 +175,24 @@ def _sort_rows(rows, mode):
     return sorted(rows, key=lambda r: (-r["summary"].best_pct, r["id"]))
 
 
-def _odds_text(rf, species_pct, best_lead, uses_repel, natures, ability_label, ability_pct):
+def _odds_text(
+    rf,
+    species_pct,
+    best_lead,
+    uses_repel,
+    natures,
+    ability_label,
+    ability_pct,
+    special_label=None,
+):
     nature_pct = 100.0 * len(natures) / len(rf.NATURES)
     p = (species_pct / 100.0) * (nature_pct / 100.0) * (ability_pct / 100.0)
-    lead_bit = "no Repel" if not uses_repel else ("lead Lv%s" % best_lead)
+    if special_label:
+        lead_bit = special_label
+    elif not uses_repel:
+        lead_bit = "no Repel"
+    else:
+        lead_bit = "lead Lv%s" % best_lead
     lines = [
         "Species %s" % rf._pct(species_pct),
         "  (%s)" % lead_bit,
@@ -374,7 +416,10 @@ class RepelApp(object):
         items = []
         for r in rows:
             s = r["summary"]
-            if self.sort_mode == "best":
+            if r.get("special"):
+                detail = r.get("kind_label") or "special 100%"
+                extra = "Repel N/A"
+            elif self.sort_mode == "best":
                 detail = "%s · %s" % (rf._pct(s.best_pct), s.lead_label)
                 extra = "natural %s" % rf._pct(s.natural_pct)
             else:
@@ -662,6 +707,7 @@ class RepelApp(object):
             natures,
             abil_label,
             abil_pct,
+            special_label=self.area_row.get("kind_label"),
         )
 
 
