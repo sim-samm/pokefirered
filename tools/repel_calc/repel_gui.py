@@ -727,11 +727,12 @@ def _load_backend():
     except Exception:
         raise RuntimeError(
             "Could not import repel_filter.py.\n"
-            "Put ALL four files in the SAME Pythonista folder:\n"
+            "Put these files in the SAME Pythonista folder:\n"
             "  repel_gui.py\n"
             "  repel_filter.py\n"
             "  encounters.json\n"
-            "  species_abilities.json\n\n"
+            "  species_abilities.json\n"
+            "  special_encounters.json (gift/static mons for search)\n\n"
             + traceback.format_exc()
         )
 
@@ -764,7 +765,15 @@ def main():
     try:
         _console("loading data")
         rf, data, abilities = _load_backend()
-        _console("areas=%d" % len(data.get("areas", [])))
+        _console("areas=%d special=%d" % (
+            len(data.get("areas", [])),
+            len(data.get("special", [])),
+        ))
+        if not data.get("special"):
+            _console(
+                "WARN: no special entries — copy encounters.json from master "
+                "or add special_encounters.json beside this script"
+            )
         _console("building UI")
         app = RepelApp(rf, data, abilities)
         _console("present")

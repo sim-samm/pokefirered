@@ -30,6 +30,7 @@ from typing import Iterable
 HERE = Path(__file__).resolve().parent
 DATA_FILE = HERE / "encounters.json"
 ABILITIES_FILE = HERE / "species_abilities.json"
+SPECIAL_FILE = HERE / "special_encounters.json"
 
 # pret sNatureStatTable columns: Atk, Def, Spe, SpA, SpD (+1 / -1 / 0)
 STAT_KEYS = ("Atk", "Def", "Spe", "SpA", "SpD")
@@ -214,6 +215,29 @@ def special_kind_label(kind: str) -> str:
     }.get(kind, f"{kind} 100%")
 
 
+def _attach_special_data(data: dict, data_dir: Path) -> None:
+    """Populate data['special'] from encounters.json and/or special_encounters.json."""
+    embedded = data.get("special") or []
+    special_path = data_dir / SPECIAL_FILE.name
+    file_entries: list[dict] = []
+    file_source: str | None = None
+    if special_path.is_file():
+        try:
+            spec = json.loads(special_path.read_text())
+        except json.JSONDecodeError:
+            spec = {}
+        file_entries = spec.get("entries") or spec.get("special") or []
+        file_source = spec.get("source")
+    if file_entries:
+        data["special"] = file_entries
+        if file_source:
+            data["special_source"] = file_source
+    elif embedded:
+        data["special"] = embedded
+    else:
+        data.setdefault("special", [])
+
+
 def load_data(path: Path | None = None) -> dict:
     path = path or DATA_FILE
     if not path.is_file():
@@ -221,7 +245,9 @@ def load_data(path: Path | None = None) -> dict:
             f"Missing {path.name}. Run export_encounters.py in the decomp, "
             "or keep encounters.json next to this script."
         )
-    return json.loads(path.read_text())
+    data = json.loads(path.read_text())
+    _attach_special_data(data, path.parent)
+    return data
 
 
 def area_block(area: dict, version: str) -> dict | None:
