@@ -89,18 +89,30 @@ def _make_toggle(titles, selected_index, action, y):
 
 def _show_message(title, message):
     """Present a simple full-screen message. Never SystemExit after this."""
-    _console(title + ": " + message[:200])
+    _console(title)
+    print(message)
     if ui is None:
-        print(message)
         return
     v = ui.View(name=title)
     v.background_color = "white"
-    lab = ui.Label(frame=(PAD, PAD, 300, 500), flex="WH")
-    lab.number_of_lines = 0
-    lab.font = ("<system>", 13)
-    lab.text = message
-    v.add_subview(lab)
-    # Prefer plain present — NavigationView not required for errors.
+    sw = _screen_width()
+    top = PAD + 44
+    header = ui.Label(
+        frame=(PAD, PAD + 20, sw - 2 * PAD, 28),
+        flex="W",
+        font=("<system-bold>", 17),
+        text=title,
+    )
+    tv = ui.TextView(
+        frame=(PAD, top, sw - 2 * PAD, 400),
+        flex="WH",
+        font=("<monospaced>", 11),
+        editable=False,
+        selectable=True,
+    )
+    tv.text = message
+    v.add_subview(header)
+    v.add_subview(tv)
     v.present("fullscreen")
 
 

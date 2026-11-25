@@ -31,6 +31,12 @@ HERE = Path(__file__).resolve().parent
 DATA_FILE = HERE / "encounters.json"
 ABILITIES_FILE = HERE / "species_abilities.json"
 SPECIAL_FILE = HERE / "special_encounters.json"
+JSON_ENCODING = "utf-8"
+
+
+def _read_utf8(path: Path) -> str:
+    """Read text as UTF-8 (Pythonista defaults read_text() to ASCII)."""
+    return path.read_text(encoding=JSON_ENCODING)
 
 # pret sNatureStatTable columns: Atk, Def, Spe, SpA, SpD (+1 / -1 / 0)
 STAT_KEYS = ("Atk", "Def", "Spe", "SpA", "SpD")
@@ -223,8 +229,8 @@ def _attach_special_data(data: dict, data_dir: Path) -> None:
     file_source: str | None = None
     if special_path.is_file():
         try:
-            spec = json.loads(special_path.read_text())
-        except json.JSONDecodeError:
+            spec = json.loads(_read_utf8(special_path))
+        except (json.JSONDecodeError, UnicodeDecodeError):
             spec = {}
         file_entries = spec.get("entries") or spec.get("special") or []
         file_source = spec.get("source")
@@ -245,7 +251,7 @@ def load_data(path: Path | None = None) -> dict:
             f"Missing {path.name}. Run export_encounters.py in the decomp, "
             "or keep encounters.json next to this script."
         )
-    data = json.loads(path.read_text())
+    data = json.loads(_read_utf8(path))
     _attach_special_data(data, path.parent)
     return data
 
@@ -497,7 +503,7 @@ def load_abilities(path: Path | None = None) -> dict:
     path = path or ABILITIES_FILE
     if not path.is_file():
         return {"species": {}}
-    return json.loads(path.read_text())
+    return json.loads(_read_utf8(path))
 
 
 def nature_matches(
