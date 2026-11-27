@@ -5,7 +5,14 @@ Pythonista tap GUI for the FR/LG EV Training helper.
 
 Keep beside: ev_trainer.py, ev_data.json, trainer_spots.json
 Run this file in Pythonista. Text/CLI: ev_trainer.py
+
+Version: 1.1.0 (2026-11-27)
+- Delete Pokémon button on edit screen
+- Reset Current EVs button
+- Spot detail screen with strategy and calculations
 """
+
+VERSION = "1.1.0"
 
 import json
 import sys
@@ -161,6 +168,16 @@ class EVTrainerApp:
         sw = _screen_width()
         cw = _content_width()
         y = PAD + 50
+
+        ver_lbl = ui.Label(
+            frame=(PAD, y, cw, 18),
+            flex="W",
+            font=("<system>", 11),
+            text_color="#999999",
+            text=f"v{VERSION}",
+        )
+        v.add_subview(ver_lbl)
+        y += 20
 
         money_lbl = ui.Label(
             frame=(PAD, y, cw, 24),
