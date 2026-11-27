@@ -1,0 +1,6 @@
+# Session save file (user-specific)
+ev_session.json
+
+# Python cache
+__pycache__/
+*.pyc

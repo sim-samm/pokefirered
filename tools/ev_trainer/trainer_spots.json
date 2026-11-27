@@ -1,0 +1,180 @@
+{
+  "source": "Smogon FRLG EV guide + Marriland",
+  "note": "Post-game VS Seeker trainers (final rematch teams)",
+  "trainers": [
+    {
+      "location": "Route 8",
+      "trainer_name": "Lass Julia",
+      "trainer_class": "LASS",
+      "vs_seeker": true,
+      "version": "both",
+      "pokemon": [
+        {"species": "CLEFAIRY", "level": 22, "evs": {"HP": 2}},
+        {"species": "CLEFAIRY", "level": 22, "evs": {"HP": 2}}
+      ]
+    },
+    {
+      "location": "Route 11",
+      "trainer_name": "Youngster Dave",
+      "trainer_class": "YOUNGSTER",
+      "vs_seeker": true,
+      "version": "both",
+      "pokemon": [
+        {"species": "NIDORAN_M", "level": 18, "evs": {"Attack": 1}},
+        {"species": "NIDORINO", "level": 18, "evs": {"Attack": 2}}
+      ]
+    },
+    {
+      "location": "Route 21",
+      "trainer_name": "Fisherman Ronald",
+      "trainer_class": "FISHERMAN",
+      "vs_seeker": true,
+      "version": "both",
+      "pokemon": [
+        {"species": "SEAKING", "level": 28, "evs": {"Attack": 2}},
+        {"species": "SEAKING", "level": 28, "evs": {"Attack": 2}},
+        {"species": "SEAKING", "level": 28, "evs": {"Attack": 2}},
+        {"species": "GOLDEEN", "level": 28, "evs": {"Attack": 1}}
+      ]
+    },
+    {
+      "location": "Route 16",
+      "trainer_name": "Biker Ruben",
+      "trainer_class": "BIKER",
+      "vs_seeker": true,
+      "version": "both",
+      "pokemon": [
+        {"species": "WEEZING", "level": 48, "evs": {"Defense": 2}},
+        {"species": "WEEZING", "level": 48, "evs": {"Defense": 2}},
+        {"species": "WEEZING", "level": 48, "evs": {"Defense": 2}}
+      ]
+    },
+    {
+      "location": "Route 17",
+      "trainer_name": "Biker Virgil",
+      "trainer_class": "BIKER",
+      "vs_seeker": true,
+      "version": "both",
+      "pokemon": [
+        {"species": "WEEZING", "level": 28, "evs": {"Defense": 2}},
+        {"species": "WEEZING", "level": 28, "evs": {"Defense": 2}},
+        {"species": "KOFFING", "level": 28, "evs": {"Defense": 1}}
+      ]
+    },
+    {
+      "location": "Route 17",
+      "trainer_name": "Biker William",
+      "trainer_class": "BIKER",
+      "vs_seeker": true,
+      "version": "both",
+      "pokemon": [
+        {"species": "KOFFING", "level": 25, "evs": {"Defense": 1}},
+        {"species": "KOFFING", "level": 25, "evs": {"Defense": 1}},
+        {"species": "KOFFING", "level": 25, "evs": {"Defense": 1}},
+        {"species": "WEEZING", "level": 25, "evs": {"Defense": 2}},
+        {"species": "WEEZING", "level": 25, "evs": {"Defense": 2}}
+      ]
+    },
+    {
+      "location": "Route 11",
+      "trainer_name": "Engineer Bernie",
+      "trainer_class": "ENGINEER",
+      "vs_seeker": true,
+      "version": "both",
+      "pokemon": [
+        {"species": "MAGNETON", "level": 28, "evs": {"SpAtk": 2}},
+        {"species": "MAGNETON", "level": 28, "evs": {"SpAtk": 2}},
+        {"species": "MAGNETON", "level": 28, "evs": {"SpAtk": 2}}
+      ]
+    },
+    {
+      "location": "Route 15",
+      "trainer_name": "Picnicker Kindra",
+      "trainer_class": "PICNICKER",
+      "vs_seeker": true,
+      "version": "both",
+      "pokemon": [
+        {"species": "GLOOM", "level": 28, "evs": {"SpAtk": 2}},
+        {"species": "ODDISH", "level": 28, "evs": {"SpAtk": 1}},
+        {"species": "ODDISH", "level": 28, "evs": {"SpAtk": 1}}
+      ]
+    },
+    {
+      "location": "Seven Island Canyon Entrance",
+      "trainer_name": "Aroma Lady Miah",
+      "trainer_class": "AROMA_LADY",
+      "vs_seeker": true,
+      "version": "both",
+      "pokemon": [
+        {"species": "BELLOSSOM", "level": 50, "evs": {"SpDef": 3}},
+        {"species": "BELLOSSOM", "level": 50, "evs": {"SpDef": 3}}
+      ]
+    },
+    {
+      "location": "Route 13",
+      "trainer_name": "Picnicker Susie",
+      "trainer_class": "PICNICKER",
+      "vs_seeker": true,
+      "version": "both",
+      "pokemon": [
+        {"species": "PIDGEOT", "level": 28, "evs": {"Speed": 3}},
+        {"species": "RAICHU", "level": 28, "evs": {"Speed": 3}}
+      ]
+    },
+    {
+      "location": "Route 17",
+      "trainer_name": "Cue Ball Jamal",
+      "trainer_class": "CUE_BALL",
+      "vs_seeker": true,
+      "version": "both",
+      "pokemon": [
+        {"species": "PRIMEAPE", "level": 29, "evs": {"Attack": 2}},
+        {"species": "PRIMEAPE", "level": 29, "evs": {"Attack": 2}}
+      ]
+    },
+    {
+      "location": "Route 18",
+      "trainer_name": "Bird Keeper Jacob",
+      "trainer_class": "BIRD_KEEPER",
+      "vs_seeker": true,
+      "version": "both",
+      "pokemon": [
+        {"species": "PIDGEOTTO", "level": 26, "evs": {"Speed": 2}},
+        {"species": "PIDGEOTTO", "level": 26, "evs": {"Speed": 2}},
+        {"species": "PIDGEOT", "level": 28, "evs": {"Speed": 3}}
+      ]
+    },
+    {
+      "location": "Route 12",
+      "trainer_name": "Fisherman Barny",
+      "trainer_class": "FISHERMAN",
+      "vs_seeker": true,
+      "version": "both",
+      "pokemon": [
+        {"species": "GYARADOS", "level": 29, "evs": {"Attack": 2}},
+        {"species": "GYARADOS", "level": 29, "evs": {"Attack": 2}}
+      ]
+    },
+    {
+      "location": "Route 9",
+      "trainer_name": "Hiker Alan",
+      "trainer_class": "HIKER",
+      "vs_seeker": true,
+      "version": "both",
+      "pokemon": [
+        {"species": "GRAVELER", "level": 25, "evs": {"Defense": 2}},
+        {"species": "ONIX", "level": 25, "evs": {"Defense": 1}}
+      ]
+    },
+    {
+      "location": "Route 10",
+      "trainer_name": "Picnicker Heidi",
+      "trainer_class": "PICNICKER",
+      "vs_seeker": true,
+      "version": "both",
+      "pokemon": [
+        {"species": "PIKACHU", "level": 20, "evs": {"Speed": 2}}
+      ]
+    }
+  ]
+}
