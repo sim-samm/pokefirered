@@ -21945,7 +21945,8 @@
             "species": "MARILL",
             "ev": 2,
             "rate": 100.0,
-            "levels": "5-25"
+            "levels": "5-25",
+            "other_evs": {}
           }
         ]
       },
@@ -21961,13 +21962,15 @@
             "species": "MARILL",
             "ev": 2,
             "rate": 70.0,
-            "levels": "5-25"
+            "levels": "5-25",
+            "other_evs": {}
           },
           {
             "species": "SLOWPOKE",
             "ev": 1,
             "rate": 30.0,
-            "levels": "5-35"
+            "levels": "5-35",
+            "other_evs": {}
           }
         ]
       },
@@ -21983,7 +21986,8 @@
             "species": "SLOWPOKE",
             "ev": 1,
             "rate": 100.0,
-            "levels": "20-40"
+            "levels": "20-40",
+            "other_evs": {}
           }
         ]
       },
@@ -21999,7 +22003,8 @@
             "species": "SLOWPOKE",
             "ev": 1,
             "rate": 100.0,
-            "levels": "20-40"
+            "levels": "20-40",
+            "other_evs": {}
           }
         ]
       },
@@ -22015,7 +22020,8 @@
             "species": "SLOWPOKE",
             "ev": 1,
             "rate": 100.0,
-            "levels": "20-40"
+            "levels": "20-40",
+            "other_evs": {}
           }
         ]
       },
@@ -22031,7 +22037,8 @@
             "species": "SLOWPOKE",
             "ev": 1,
             "rate": 100.0,
-            "levels": "20-40"
+            "levels": "20-40",
+            "other_evs": {}
           }
         ]
       },
@@ -22047,7 +22054,8 @@
             "species": "SLOWPOKE",
             "ev": 1,
             "rate": 100.0,
-            "levels": "20-40"
+            "levels": "20-40",
+            "other_evs": {}
           }
         ]
       },
@@ -22063,7 +22071,8 @@
             "species": "SLOWPOKE",
             "ev": 1,
             "rate": 100.0,
-            "levels": "20-40"
+            "levels": "20-40",
+            "other_evs": {}
           }
         ]
       },
@@ -22079,7 +22088,8 @@
             "species": "SLOWPOKE",
             "ev": 1,
             "rate": 100.0,
-            "levels": "20-40"
+            "levels": "20-40",
+            "other_evs": {}
           }
         ]
       },
@@ -22095,7 +22105,8 @@
             "species": "SLOWPOKE",
             "ev": 1,
             "rate": 100.0,
-            "levels": "20-40"
+            "levels": "20-40",
+            "other_evs": {}
           }
         ]
       }
@@ -22113,7 +22124,8 @@
             "species": "PARAS",
             "ev": 1,
             "rate": 100.0,
-            "levels": "5-10"
+            "levels": "5-10",
+            "other_evs": {}
           }
         ]
       },
@@ -22126,40 +22138,75 @@
         "purity": 66.0,
         "pokemon": [
           {
-            "species": "DODUO",
-            "ev": 1,
-            "rate": 20.0,
-            "levels": "26"
-          },
-          {
-            "species": "NIDORAN_M",
-            "ev": 1,
-            "rate": 20.0,
-            "levels": "24"
-          },
-          {
-            "species": "PARAS",
-            "ev": 1,
-            "rate": 15.0,
-            "levels": "22"
-          },
-          {
             "species": "NIDORINO",
             "ev": 2,
             "rate": 10.0,
-            "levels": "33"
+            "levels": "33",
+            "other_evs": {}
           },
           {
             "species": "PARASECT",
             "ev": 2,
             "rate": 5.0,
-            "levels": "25"
+            "levels": "25",
+            "other_evs": {
+              "Defense": 1
+            }
+          },
+          {
+            "species": "DODUO",
+            "ev": 1,
+            "rate": 20.0,
+            "levels": "26",
+            "other_evs": {}
+          },
+          {
+            "species": "NIDORAN_M",
+            "ev": 1,
+            "rate": 20.0,
+            "levels": "24",
+            "other_evs": {}
+          },
+          {
+            "species": "PARAS",
+            "ev": 1,
+            "rate": 15.0,
+            "levels": "22",
+            "other_evs": {}
           },
           {
             "species": "SCYTHER",
             "ev": 1,
             "rate": 1.0,
-            "levels": "28"
+            "levels": "28",
+            "other_evs": {}
+          },
+          {
+            "species": "EXEGGCUTE",
+            "ev": 0,
+            "rate": 20.0,
+            "levels": "23-25",
+            "other_evs": {
+              "Defense": 1
+            }
+          },
+          {
+            "species": "NIDORAN_F",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "24",
+            "other_evs": {
+              "HP": 1
+            }
+          },
+          {
+            "species": "KANGASKHAN",
+            "ev": 0,
+            "rate": 4.0,
+            "levels": "25",
+            "other_evs": {
+              "HP": 2
+            }
           }
         ]
       },
@@ -22172,16 +22219,27 @@
         "purity": 60.0,
         "pokemon": [
           {
-            "species": "MACHOP",
-            "ev": 1,
-            "rate": 40.0,
-            "levels": "32-36"
-          },
-          {
             "species": "MACHOKE",
             "ev": 2,
             "rate": 20.0,
-            "levels": "38-40"
+            "levels": "38-40",
+            "other_evs": {}
+          },
+          {
+            "species": "MACHOP",
+            "ev": 1,
+            "rate": 40.0,
+            "levels": "32-36",
+            "other_evs": {}
+          },
+          {
+            "species": "GEODUDE",
+            "ev": 0,
+            "rate": 40.0,
+            "levels": "30-34",
+            "other_evs": {
+              "Defense": 1
+            }
           }
         ]
       },
@@ -22194,28 +22252,50 @@
         "purity": 60.0,
         "pokemon": [
           {
-            "species": "MANKEY",
-            "ev": 1,
-            "rate": 30.0,
-            "levels": "32-34"
-          },
-          {
-            "species": "EKANS",
-            "ev": 1,
-            "rate": 20.0,
-            "levels": "32-34"
-          },
-          {
             "species": "ARBOK",
             "ev": 2,
             "rate": 5.0,
-            "levels": "44"
+            "levels": "44",
+            "other_evs": {}
           },
           {
             "species": "PRIMEAPE",
             "ev": 2,
             "rate": 5.0,
-            "levels": "42"
+            "levels": "42",
+            "other_evs": {}
+          },
+          {
+            "species": "MANKEY",
+            "ev": 1,
+            "rate": 30.0,
+            "levels": "32-34",
+            "other_evs": {}
+          },
+          {
+            "species": "EKANS",
+            "ev": 1,
+            "rate": 20.0,
+            "levels": "32-34",
+            "other_evs": {}
+          },
+          {
+            "species": "FEAROW",
+            "ev": 0,
+            "rate": 25.0,
+            "levels": "40-44",
+            "other_evs": {
+              "Speed": 2
+            }
+          },
+          {
+            "species": "SPEAROW",
+            "ev": 0,
+            "rate": 15.0,
+            "levels": "32-34",
+            "other_evs": {
+              "Speed": 1
+            }
           }
         ]
       },
@@ -22228,16 +22308,63 @@
         "purity": 50.0,
         "pokemon": [
           {
-            "species": "SPINARAK",
-            "ev": 1,
-            "rate": 30.0,
-            "levels": "9-14"
-          },
-          {
             "species": "HERACROSS",
             "ev": 2,
             "rate": 20.0,
-            "levels": "15-30"
+            "levels": "15-30",
+            "other_evs": {}
+          },
+          {
+            "species": "SPINARAK",
+            "ev": 1,
+            "rate": 30.0,
+            "levels": "9-14",
+            "other_evs": {}
+          },
+          {
+            "species": "KAKUNA",
+            "ev": 0,
+            "rate": 20.0,
+            "levels": "9",
+            "other_evs": {
+              "Defense": 2
+            }
+          },
+          {
+            "species": "CATERPIE",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "6",
+            "other_evs": {
+              "HP": 1
+            }
+          },
+          {
+            "species": "WEEDLE",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "6",
+            "other_evs": {
+              "Speed": 1
+            }
+          },
+          {
+            "species": "LEDYBA",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "9-14",
+            "other_evs": {
+              "SpDef": 1
+            }
+          },
+          {
+            "species": "METAPOD",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "9",
+            "other_evs": {
+              "Defense": 2
+            }
           }
         ]
       },
@@ -22250,28 +22377,80 @@
         "purity": 50.0,
         "pokemon": [
           {
+            "species": "NIDORINO",
+            "ev": 2,
+            "rate": 10.0,
+            "levels": "30",
+            "other_evs": {}
+          },
+          {
             "species": "DODUO",
             "ev": 1,
             "rate": 20.0,
-            "levels": "26"
+            "levels": "26",
+            "other_evs": {}
           },
           {
             "species": "NIDORAN_M",
             "ev": 1,
             "rate": 20.0,
-            "levels": "22"
-          },
-          {
-            "species": "NIDORINO",
-            "ev": 2,
-            "rate": 10.0,
-            "levels": "30"
+            "levels": "22",
+            "other_evs": {}
           },
           {
             "species": "TAUROS",
             "ev": 1,
             "rate": 4.0,
-            "levels": "25"
+            "levels": "25",
+            "other_evs": {
+              "Speed": 1
+            }
+          },
+          {
+            "species": "EXEGGCUTE",
+            "ev": 0,
+            "rate": 20.0,
+            "levels": "25-27",
+            "other_evs": {
+              "Defense": 1
+            }
+          },
+          {
+            "species": "VENONAT",
+            "ev": 0,
+            "rate": 15.0,
+            "levels": "23",
+            "other_evs": {
+              "SpDef": 1
+            }
+          },
+          {
+            "species": "NIDORAN_F",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "30",
+            "other_evs": {
+              "HP": 1
+            }
+          },
+          {
+            "species": "VENOMOTH",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "32",
+            "other_evs": {
+              "Speed": 1,
+              "SpAtk": 1
+            }
+          },
+          {
+            "species": "KANGASKHAN",
+            "ev": 0,
+            "rate": 1.0,
+            "levels": "28",
+            "other_evs": {
+              "HP": 2
+            }
           }
         ]
       },
@@ -22284,16 +22463,27 @@
         "purity": 50.0,
         "pokemon": [
           {
-            "species": "MACHOP",
-            "ev": 1,
-            "rate": 40.0,
-            "levels": "34-38"
-          },
-          {
             "species": "MACHOKE",
             "ev": 2,
             "rate": 10.0,
-            "levels": "40-42"
+            "levels": "40-42",
+            "other_evs": {}
+          },
+          {
+            "species": "MACHOP",
+            "ev": 1,
+            "rate": 40.0,
+            "levels": "34-38",
+            "other_evs": {}
+          },
+          {
+            "species": "GEODUDE",
+            "ev": 0,
+            "rate": 50.0,
+            "levels": "32-40",
+            "other_evs": {
+              "Defense": 1
+            }
           }
         ]
       },
@@ -22309,7 +22499,44 @@
             "species": "SWINUB",
             "ev": 1,
             "rate": 50.0,
-            "levels": "23-31"
+            "levels": "23-31",
+            "other_evs": {}
+          },
+          {
+            "species": "GOLBAT",
+            "ev": 0,
+            "rate": 25.0,
+            "levels": "45-48",
+            "other_evs": {
+              "Speed": 2
+            }
+          },
+          {
+            "species": "SEEL",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "45",
+            "other_evs": {
+              "SpDef": 1
+            }
+          },
+          {
+            "species": "ZUBAT",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "40",
+            "other_evs": {
+              "Speed": 1
+            }
+          },
+          {
+            "species": "DELIBIRD",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "30",
+            "other_evs": {
+              "Speed": 1
+            }
           }
         ]
       },
@@ -22325,7 +22552,44 @@
             "species": "SWINUB",
             "ev": 1,
             "rate": 50.0,
-            "levels": "23-31"
+            "levels": "23-31",
+            "other_evs": {}
+          },
+          {
+            "species": "GOLBAT",
+            "ev": 0,
+            "rate": 25.0,
+            "levels": "45-48",
+            "other_evs": {
+              "Speed": 2
+            }
+          },
+          {
+            "species": "SEEL",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "45",
+            "other_evs": {
+              "SpDef": 1
+            }
+          },
+          {
+            "species": "ZUBAT",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "40",
+            "other_evs": {
+              "Speed": 1
+            }
+          },
+          {
+            "species": "SNEASEL",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "30",
+            "other_evs": {
+              "Speed": 1
+            }
           }
         ]
       },
@@ -22341,7 +22605,44 @@
             "species": "SWINUB",
             "ev": 1,
             "rate": 50.0,
-            "levels": "23-31"
+            "levels": "23-31",
+            "other_evs": {}
+          },
+          {
+            "species": "GOLBAT",
+            "ev": 0,
+            "rate": 25.0,
+            "levels": "45-48",
+            "other_evs": {
+              "Speed": 2
+            }
+          },
+          {
+            "species": "SEEL",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "45",
+            "other_evs": {
+              "SpDef": 1
+            }
+          },
+          {
+            "species": "ZUBAT",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "40",
+            "other_evs": {
+              "Speed": 1
+            }
+          },
+          {
+            "species": "DELIBIRD",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "30",
+            "other_evs": {
+              "Speed": 1
+            }
           }
         ]
       }
@@ -22359,7 +22660,8 @@
             "species": "TANGELA",
             "ev": 1,
             "rate": 100.0,
-            "levels": "17-28"
+            "levels": "17-28",
+            "other_evs": {}
           }
         ]
       },
@@ -22375,7 +22677,8 @@
             "species": "TANGELA",
             "ev": 1,
             "rate": 100.0,
-            "levels": "17-28"
+            "levels": "17-28",
+            "other_evs": {}
           }
         ]
       },
@@ -22391,7 +22694,17 @@
             "species": "GEODUDE",
             "ev": 1,
             "rate": 70.0,
-            "levels": "34-42"
+            "levels": "34-42",
+            "other_evs": {}
+          },
+          {
+            "species": "SLUGMA",
+            "ev": 0,
+            "rate": 30.0,
+            "levels": "24-30",
+            "other_evs": {
+              "SpAtk": 1
+            }
           }
         ]
       },
@@ -22407,7 +22720,17 @@
             "species": "GEODUDE",
             "ev": 1,
             "rate": 70.0,
-            "levels": "34-42"
+            "levels": "34-42",
+            "other_evs": {}
+          },
+          {
+            "species": "SLUGMA",
+            "ev": 0,
+            "rate": 30.0,
+            "levels": "24-30",
+            "other_evs": {
+              "SpAtk": 1
+            }
           }
         ]
       },
@@ -22420,28 +22743,68 @@
         "purity": 60.0,
         "pokemon": [
           {
-            "species": "ONIX",
-            "ev": 1,
-            "rate": 30.0,
-            "levels": "40-46"
-          },
-          {
-            "species": "GEODUDE",
-            "ev": 1,
-            "rate": 20.0,
-            "levels": "32"
-          },
-          {
             "species": "MAROWAK",
             "ev": 2,
             "rate": 5.0,
-            "levels": "44-46"
+            "levels": "44-46",
+            "other_evs": {}
           },
           {
             "species": "SANDSLASH",
             "ev": 2,
             "rate": 5.0,
-            "levels": "44"
+            "levels": "44",
+            "other_evs": {}
+          },
+          {
+            "species": "ONIX",
+            "ev": 1,
+            "rate": 30.0,
+            "levels": "40-46",
+            "other_evs": {}
+          },
+          {
+            "species": "GEODUDE",
+            "ev": 1,
+            "rate": 20.0,
+            "levels": "32",
+            "other_evs": {}
+          },
+          {
+            "species": "MACHOP",
+            "ev": 0,
+            "rate": 20.0,
+            "levels": "32",
+            "other_evs": {
+              "Attack": 1
+            }
+          },
+          {
+            "species": "ZUBAT",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "32",
+            "other_evs": {
+              "Speed": 1
+            }
+          },
+          {
+            "species": "GOLBAT",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "44",
+            "other_evs": {
+              "Speed": 2
+            }
+          },
+          {
+            "species": "MACHOKE",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "44-46",
+            "other_evs": {
+              "Attack": 2
+            }
           }
         ]
       },
@@ -22454,28 +22817,68 @@
         "purity": 60.0,
         "pokemon": [
           {
-            "species": "ONIX",
-            "ev": 1,
-            "rate": 30.0,
-            "levels": "40-46"
-          },
-          {
-            "species": "GEODUDE",
-            "ev": 1,
-            "rate": 20.0,
-            "levels": "32"
-          },
-          {
             "species": "MAROWAK",
             "ev": 2,
             "rate": 5.0,
-            "levels": "44-46"
+            "levels": "44-46",
+            "other_evs": {}
           },
           {
             "species": "SANDSLASH",
             "ev": 2,
             "rate": 5.0,
-            "levels": "44"
+            "levels": "44",
+            "other_evs": {}
+          },
+          {
+            "species": "ONIX",
+            "ev": 1,
+            "rate": 30.0,
+            "levels": "40-46",
+            "other_evs": {}
+          },
+          {
+            "species": "GEODUDE",
+            "ev": 1,
+            "rate": 20.0,
+            "levels": "32",
+            "other_evs": {}
+          },
+          {
+            "species": "MACHOP",
+            "ev": 0,
+            "rate": 20.0,
+            "levels": "32",
+            "other_evs": {
+              "Attack": 1
+            }
+          },
+          {
+            "species": "ZUBAT",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "32",
+            "other_evs": {
+              "Speed": 1
+            }
+          },
+          {
+            "species": "GOLBAT",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "44",
+            "other_evs": {
+              "Speed": 2
+            }
+          },
+          {
+            "species": "MACHOKE",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "44-46",
+            "other_evs": {
+              "Attack": 2
+            }
           }
         ]
       },
@@ -22488,22 +22891,70 @@
         "purity": 55.0,
         "pokemon": [
           {
+            "species": "MAROWAK",
+            "ev": 2,
+            "rate": 5.0,
+            "levels": "44-46",
+            "other_evs": {}
+          },
+          {
             "species": "ONIX",
             "ev": 1,
             "rate": 30.0,
-            "levels": "40-46"
+            "levels": "40-46",
+            "other_evs": {}
           },
           {
             "species": "GEODUDE",
             "ev": 1,
             "rate": 20.0,
-            "levels": "32"
+            "levels": "32",
+            "other_evs": {}
           },
           {
-            "species": "MAROWAK",
-            "ev": 2,
+            "species": "MACHOP",
+            "ev": 0,
+            "rate": 20.0,
+            "levels": "32",
+            "other_evs": {
+              "Attack": 1
+            }
+          },
+          {
+            "species": "ZUBAT",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "32",
+            "other_evs": {
+              "Speed": 1
+            }
+          },
+          {
+            "species": "ARBOK",
+            "ev": 0,
             "rate": 5.0,
-            "levels": "44-46"
+            "levels": "44",
+            "other_evs": {
+              "Attack": 2
+            }
+          },
+          {
+            "species": "GOLBAT",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "44",
+            "other_evs": {
+              "Speed": 2
+            }
+          },
+          {
+            "species": "MACHOKE",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "44-46",
+            "other_evs": {
+              "Attack": 2
+            }
           }
         ]
       },
@@ -22516,22 +22967,70 @@
         "purity": 55.0,
         "pokemon": [
           {
+            "species": "MAROWAK",
+            "ev": 2,
+            "rate": 5.0,
+            "levels": "44-46",
+            "other_evs": {}
+          },
+          {
             "species": "ONIX",
             "ev": 1,
             "rate": 30.0,
-            "levels": "40-46"
+            "levels": "40-46",
+            "other_evs": {}
           },
           {
             "species": "GEODUDE",
             "ev": 1,
             "rate": 20.0,
-            "levels": "32"
+            "levels": "32",
+            "other_evs": {}
           },
           {
-            "species": "MAROWAK",
-            "ev": 2,
+            "species": "MACHOP",
+            "ev": 0,
+            "rate": 20.0,
+            "levels": "32",
+            "other_evs": {
+              "Attack": 1
+            }
+          },
+          {
+            "species": "ZUBAT",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "32",
+            "other_evs": {
+              "Speed": 1
+            }
+          },
+          {
+            "species": "ARBOK",
+            "ev": 0,
             "rate": 5.0,
-            "levels": "44-46"
+            "levels": "44",
+            "other_evs": {
+              "Attack": 2
+            }
+          },
+          {
+            "species": "GOLBAT",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "44",
+            "other_evs": {
+              "Speed": 2
+            }
+          },
+          {
+            "species": "MACHOKE",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "44-46",
+            "other_evs": {
+              "Attack": 2
+            }
           }
         ]
       },
@@ -22544,34 +23043,84 @@
         "purity": 50.0,
         "pokemon": [
           {
-            "species": "GEODUDE",
-            "ev": 1,
-            "rate": 20.0,
-            "levels": "46"
-          },
-          {
-            "species": "CUBONE",
-            "ev": 1,
-            "rate": 10.0,
-            "levels": "46"
-          },
-          {
             "species": "MAROWAK",
             "ev": 2,
             "rate": 10.0,
-            "levels": "52"
-          },
-          {
-            "species": "ONIX",
-            "ev": 1,
-            "rate": 5.0,
-            "levels": "54"
+            "levels": "52",
+            "other_evs": {}
           },
           {
             "species": "SKARMORY",
             "ev": 2,
             "rate": 5.0,
-            "levels": "30"
+            "levels": "30",
+            "other_evs": {}
+          },
+          {
+            "species": "GEODUDE",
+            "ev": 1,
+            "rate": 20.0,
+            "levels": "46",
+            "other_evs": {}
+          },
+          {
+            "species": "CUBONE",
+            "ev": 1,
+            "rate": 10.0,
+            "levels": "46",
+            "other_evs": {}
+          },
+          {
+            "species": "ONIX",
+            "ev": 1,
+            "rate": 5.0,
+            "levels": "54",
+            "other_evs": {}
+          },
+          {
+            "species": "PHANPY",
+            "ev": 0,
+            "rate": 20.0,
+            "levels": "15",
+            "other_evs": {
+              "HP": 1
+            }
+          },
+          {
+            "species": "FEAROW",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "50",
+            "other_evs": {
+              "Speed": 2
+            }
+          },
+          {
+            "species": "MEOWTH",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "43",
+            "other_evs": {
+              "Speed": 1
+            }
+          },
+          {
+            "species": "LARVITAR",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "15-20",
+            "other_evs": {
+              "Attack": 1
+            }
+          },
+          {
+            "species": "PERSIAN",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "49-52",
+            "other_evs": {
+              "Speed": 2
+            }
           }
         ]
       },
@@ -22584,28 +23133,77 @@
         "purity": 50.0,
         "pokemon": [
           {
-            "species": "GEODUDE",
-            "ev": 1,
-            "rate": 20.0,
-            "levels": "34"
-          },
-          {
-            "species": "ONIX",
-            "ev": 1,
-            "rate": 20.0,
-            "levels": "45-48"
-          },
-          {
             "species": "MAROWAK",
             "ev": 2,
             "rate": 5.0,
-            "levels": "46-48"
+            "levels": "46-48",
+            "other_evs": {}
           },
           {
             "species": "SANDSLASH",
             "ev": 2,
             "rate": 5.0,
-            "levels": "46"
+            "levels": "46",
+            "other_evs": {}
+          },
+          {
+            "species": "GEODUDE",
+            "ev": 1,
+            "rate": 20.0,
+            "levels": "34",
+            "other_evs": {}
+          },
+          {
+            "species": "ONIX",
+            "ev": 1,
+            "rate": 20.0,
+            "levels": "45-48",
+            "other_evs": {}
+          },
+          {
+            "species": "MACHOP",
+            "ev": 0,
+            "rate": 20.0,
+            "levels": "34",
+            "other_evs": {
+              "Attack": 1
+            }
+          },
+          {
+            "species": "PRIMEAPE",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "42",
+            "other_evs": {
+              "Attack": 2
+            }
+          },
+          {
+            "species": "ZUBAT",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "34",
+            "other_evs": {
+              "Speed": 1
+            }
+          },
+          {
+            "species": "GOLBAT",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "46",
+            "other_evs": {
+              "Speed": 2
+            }
+          },
+          {
+            "species": "MACHOKE",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "46-48",
+            "other_evs": {
+              "Attack": 2
+            }
           }
         ]
       }
@@ -22620,16 +23218,18 @@
         "purity": 100.0,
         "pokemon": [
           {
-            "species": "DIGLETT",
-            "ev": 1,
-            "rate": 95.0,
-            "levels": "15-22"
-          },
-          {
             "species": "DUGTRIO",
             "ev": 2,
             "rate": 5.0,
-            "levels": "29-31"
+            "levels": "29-31",
+            "other_evs": {}
+          },
+          {
+            "species": "DIGLETT",
+            "ev": 1,
+            "rate": 95.0,
+            "levels": "15-22",
+            "other_evs": {}
           }
         ]
       },
@@ -22645,13 +23245,15 @@
             "species": "PIDGEY",
             "ev": 1,
             "rate": 50.0,
-            "levels": "2-5"
+            "levels": "2-5",
+            "other_evs": {}
           },
           {
             "species": "RATTATA",
             "ev": 1,
             "rate": 50.0,
-            "levels": "2-4"
+            "levels": "2-4",
+            "other_evs": {}
           }
         ]
       },
@@ -22667,7 +23269,8 @@
             "species": "SMEARGLE",
             "ev": 1,
             "rate": 100.0,
-            "levels": "18-28"
+            "levels": "18-28",
+            "other_evs": {}
           }
         ]
       },
@@ -22683,19 +23286,31 @@
             "species": "PIDGEY",
             "ev": 1,
             "rate": 45.0,
-            "levels": "2-5"
+            "levels": "2-5",
+            "other_evs": {}
           },
           {
             "species": "RATTATA",
             "ev": 1,
             "rate": 45.0,
-            "levels": "2-5"
+            "levels": "2-5",
+            "other_evs": {}
           },
           {
             "species": "WEEDLE",
             "ev": 1,
             "rate": 5.0,
-            "levels": "4-5"
+            "levels": "4-5",
+            "other_evs": {}
+          },
+          {
+            "species": "CATERPIE",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "4-5",
+            "other_evs": {
+              "HP": 1
+            }
           }
         ]
       },
@@ -22708,40 +23323,64 @@
         "purity": 85.0,
         "pokemon": [
           {
-            "species": "PONYTA",
-            "ev": 1,
-            "rate": 30.0,
-            "levels": "31-34"
-          },
-          {
-            "species": "SPEAROW",
-            "ev": 1,
-            "rate": 25.0,
-            "levels": "30-32"
-          },
-          {
             "species": "FEAROW",
             "ev": 2,
             "rate": 10.0,
-            "levels": "36"
-          },
-          {
-            "species": "MEOWTH",
-            "ev": 1,
-            "rate": 10.0,
-            "levels": "31"
+            "levels": "36",
+            "other_evs": {}
           },
           {
             "species": "PERSIAN",
             "ev": 2,
             "rate": 5.0,
-            "levels": "37-40"
+            "levels": "37-40",
+            "other_evs": {}
           },
           {
             "species": "RAPIDASH",
             "ev": 2,
             "rate": 5.0,
-            "levels": "37-40"
+            "levels": "37-40",
+            "other_evs": {}
+          },
+          {
+            "species": "PONYTA",
+            "ev": 1,
+            "rate": 30.0,
+            "levels": "31-34",
+            "other_evs": {}
+          },
+          {
+            "species": "SPEAROW",
+            "ev": 1,
+            "rate": 25.0,
+            "levels": "30-32",
+            "other_evs": {}
+          },
+          {
+            "species": "MEOWTH",
+            "ev": 1,
+            "rate": 10.0,
+            "levels": "31",
+            "other_evs": {}
+          },
+          {
+            "species": "GEODUDE",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "31",
+            "other_evs": {
+              "Defense": 1
+            }
+          },
+          {
+            "species": "PSYDUCK",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "34",
+            "other_evs": {
+              "SpAtk": 1
+            }
           }
         ]
       },
@@ -22754,40 +23393,64 @@
         "purity": 85.0,
         "pokemon": [
           {
-            "species": "PONYTA",
-            "ev": 1,
-            "rate": 30.0,
-            "levels": "31-34"
-          },
-          {
-            "species": "SPEAROW",
-            "ev": 1,
-            "rate": 25.0,
-            "levels": "30-32"
-          },
-          {
             "species": "FEAROW",
             "ev": 2,
             "rate": 10.0,
-            "levels": "36"
-          },
-          {
-            "species": "MEOWTH",
-            "ev": 1,
-            "rate": 10.0,
-            "levels": "31"
+            "levels": "36",
+            "other_evs": {}
           },
           {
             "species": "PERSIAN",
             "ev": 2,
             "rate": 5.0,
-            "levels": "37-40"
+            "levels": "37-40",
+            "other_evs": {}
           },
           {
             "species": "RAPIDASH",
             "ev": 2,
             "rate": 5.0,
-            "levels": "37-40"
+            "levels": "37-40",
+            "other_evs": {}
+          },
+          {
+            "species": "PONYTA",
+            "ev": 1,
+            "rate": 30.0,
+            "levels": "31-34",
+            "other_evs": {}
+          },
+          {
+            "species": "SPEAROW",
+            "ev": 1,
+            "rate": 25.0,
+            "levels": "30-32",
+            "other_evs": {}
+          },
+          {
+            "species": "MEOWTH",
+            "ev": 1,
+            "rate": 10.0,
+            "levels": "31",
+            "other_evs": {}
+          },
+          {
+            "species": "GEODUDE",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "31",
+            "other_evs": {
+              "Defense": 1
+            }
+          },
+          {
+            "species": "SLOWPOKE",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "34",
+            "other_evs": {
+              "HP": 1
+            }
           }
         ]
       },
@@ -22800,28 +23463,50 @@
         "purity": 80.0,
         "pokemon": [
           {
-            "species": "PONYTA",
-            "ev": 1,
-            "rate": 35.0,
-            "levels": "30-36"
-          },
-          {
             "species": "FEAROW",
             "ev": 2,
             "rate": 25.0,
-            "levels": "38-40"
-          },
-          {
-            "species": "SPEAROW",
-            "ev": 1,
-            "rate": 15.0,
-            "levels": "30-32"
+            "levels": "38-40",
+            "other_evs": {}
           },
           {
             "species": "RAPIDASH",
             "ev": 2,
             "rate": 5.0,
-            "levels": "39-42"
+            "levels": "39-42",
+            "other_evs": {}
+          },
+          {
+            "species": "PONYTA",
+            "ev": 1,
+            "rate": 35.0,
+            "levels": "30-36",
+            "other_evs": {}
+          },
+          {
+            "species": "SPEAROW",
+            "ev": 1,
+            "rate": 15.0,
+            "levels": "30-32",
+            "other_evs": {}
+          },
+          {
+            "species": "GEODUDE",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "33",
+            "other_evs": {
+              "Defense": 1
+            }
+          },
+          {
+            "species": "MACHOP",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "35",
+            "other_evs": {
+              "Attack": 1
+            }
           }
         ]
       },
@@ -22837,19 +23522,31 @@
             "species": "MEOWTH",
             "ev": 1,
             "rate": 40.0,
-            "levels": "17-20"
+            "levels": "17-20",
+            "other_evs": {}
           },
           {
             "species": "PIDGEY",
             "ev": 1,
             "rate": 30.0,
-            "levels": "19-22"
+            "levels": "19-22",
+            "other_evs": {}
           },
           {
             "species": "VULPIX",
             "ev": 1,
             "rate": 10.0,
-            "levels": "18-20"
+            "levels": "18-20",
+            "other_evs": {}
+          },
+          {
+            "species": "BELLSPROUT",
+            "ev": 0,
+            "rate": 20.0,
+            "levels": "19-22",
+            "other_evs": {
+              "Attack": 1
+            }
           }
         ]
       },
@@ -22865,19 +23562,31 @@
             "species": "MEOWTH",
             "ev": 1,
             "rate": 30.0,
-            "levels": "18-20"
+            "levels": "18-20",
+            "other_evs": {}
           },
           {
             "species": "PIDGEY",
             "ev": 1,
             "rate": 30.0,
-            "levels": "18-20"
+            "levels": "18-20",
+            "other_evs": {}
           },
           {
             "species": "VULPIX",
             "ev": 1,
             "rate": 20.0,
-            "levels": "15-18"
+            "levels": "15-18",
+            "other_evs": {}
+          },
+          {
+            "species": "SANDSHREW",
+            "ev": 0,
+            "rate": 20.0,
+            "levels": "17-19",
+            "other_evs": {
+              "Defense": 1
+            }
           }
         ]
       },
@@ -22890,28 +23599,59 @@
         "purity": 75.0,
         "pokemon": [
           {
-            "species": "PONYTA",
-            "ev": 1,
-            "rate": 35.0,
-            "levels": "30-36"
-          },
-          {
             "species": "FEAROW",
             "ev": 2,
             "rate": 25.0,
-            "levels": "38-40"
-          },
-          {
-            "species": "SPEAROW",
-            "ev": 1,
-            "rate": 10.0,
-            "levels": "32"
+            "levels": "38-40",
+            "other_evs": {}
           },
           {
             "species": "RAPIDASH",
             "ev": 2,
             "rate": 5.0,
-            "levels": "39-42"
+            "levels": "39-42",
+            "other_evs": {}
+          },
+          {
+            "species": "PONYTA",
+            "ev": 1,
+            "rate": 35.0,
+            "levels": "30-36",
+            "other_evs": {}
+          },
+          {
+            "species": "SPEAROW",
+            "ev": 1,
+            "rate": 10.0,
+            "levels": "32",
+            "other_evs": {}
+          },
+          {
+            "species": "GEODUDE",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "33",
+            "other_evs": {
+              "Defense": 1
+            }
+          },
+          {
+            "species": "MACHOP",
+            "ev": 0,
+            "rate": 10.0,
+            "levels": "35",
+            "other_evs": {
+              "Attack": 1
+            }
+          },
+          {
+            "species": "MAGMAR",
+            "ev": 0,
+            "rate": 5.0,
+            "levels": "38-40",
+            "other_evs": {
+              "SpAtk": 2
+            }
           }
         ]
       }
@@ -22926,16 +23666,18 @@
         "purity": 100.0,
         "pokemon": [
           {
-            "species": "PSYDUCK",
-            "ev": 1,
-            "rate": 65.0,
-            "levels": "30-50"
-          },
-          {
             "species": "GOLDUCK",
             "ev": 2,
             "rate": 35.0,
-            "levels": "40-55"
+            "levels": "40-55",
+            "other_evs": {}
+          },
+          {
+            "species": "PSYDUCK",
+            "ev": 1,
+            "rate": 65.0,
+            "levels": "30-50",
+            "other_evs": {}
           }
         ]
       },
@@ -22948,16 +23690,18 @@
         "purity": 100.0,
         "pokemon": [
           {
-            "species": "PSYDUCK",
-            "ev": 1,
-            "rate": 65.0,
-            "levels": "40-60"
-          },
-          {
             "species": "GOLDUCK",
             "ev": 2,
             "rate": 35.0,
-            "levels": "50-65"
+            "levels": "50-65",
+            "other_evs": {}
+          },
+          {
+            "species": "PSYDUCK",
+            "ev": 1,
+            "rate": 65.0,
+            "levels": "40-60",
+            "other_evs": {}
           }
         ]
       },
@@ -22970,16 +23714,18 @@
         "purity": 100.0,
         "pokemon": [
           {
-            "species": "PSYDUCK",
-            "ev": 1,
-            "rate": 95.0,
-            "levels": "5-40"
-          },
-          {
             "species": "GOLDUCK",
             "ev": 2,
             "rate": 5.0,
-            "levels": "35-40"
+            "levels": "35-40",
+            "other_evs": {}
+          },
+          {
+            "species": "PSYDUCK",
+            "ev": 1,
+            "rate": 95.0,
+            "levels": "5-40",
+            "other_evs": {}
           }
         ]
       },
@@ -22992,16 +23738,18 @@
         "purity": 100.0,
         "pokemon": [
           {
-            "species": "PSYDUCK",
-            "ev": 1,
-            "rate": 95.0,
-            "levels": "5-40"
-          },
-          {
             "species": "GOLDUCK",
             "ev": 2,
             "rate": 5.0,
-            "levels": "35-40"
+            "levels": "35-40",
+            "other_evs": {}
+          },
+          {
+            "species": "PSYDUCK",
+            "ev": 1,
+            "rate": 95.0,
+            "levels": "5-40",
+            "other_evs": {}
           }
         ]
       },
@@ -23017,7 +23765,8 @@
             "species": "PSYDUCK",
             "ev": 1,
             "rate": 100.0,
-            "levels": "20-40"
+            "levels": "20-40",
+            "other_evs": {}
           }
         ]
       },
@@ -23033,7 +23782,8 @@
             "species": "SLUGMA",
             "ev": 1,
             "rate": 100.0,
-            "levels": "18-36"
+            "levels": "18-36",
+            "other_evs": {}
           }
         ]
       },
@@ -23049,7 +23799,8 @@
             "species": "PSYDUCK",
             "ev": 1,
             "rate": 100.0,
-            "levels": "20-40"
+            "levels": "20-40",
+            "other_evs": {}
           }
         ]
       },
@@ -23065,7 +23816,8 @@
             "species": "PSYDUCK",
             "ev": 1,
             "rate": 100.0,
-            "levels": "20-40"
+            "levels": "20-40",
+            "other_evs": {}
           }
         ]
       },
@@ -23081,7 +23833,8 @@
             "species": "PSYDUCK",
             "ev": 1,
             "rate": 100.0,
-            "levels": "20-40"
+            "levels": "20-40",
+            "other_evs": {}
           }
         ]
       },
@@ -23097,7 +23850,8 @@
             "species": "PSYDUCK",
             "ev": 1,
             "rate": 100.0,
-            "levels": "20-40"
+            "levels": "20-40",
+            "other_evs": {}
           }
         ]
       }
@@ -23112,22 +23866,25 @@
         "purity": 100.0,
         "pokemon": [
           {
-            "species": "TENTACOOL",
-            "ev": 1,
-            "rate": 90.0,
-            "levels": "5-35"
-          },
-          {
             "species": "MANTINE",
             "ev": 2,
             "rate": 5.0,
-            "levels": "35-40"
+            "levels": "35-40",
+            "other_evs": {}
           },
           {
             "species": "TENTACRUEL",
             "ev": 2,
             "rate": 5.0,
-            "levels": "35-40"
+            "levels": "35-40",
+            "other_evs": {}
+          },
+          {
+            "species": "TENTACOOL",
+            "ev": 1,
+            "rate": 90.0,
+            "levels": "5-35",
+            "other_evs": {}
           }
         ]
       },
@@ -23140,22 +23897,25 @@
         "purity": 100.0,
         "pokemon": [
           {
-            "species": "TENTACOOL",
-            "ev": 1,
-            "rate": 90.0,
-            "levels": "5-35"
-          },
-          {
             "species": "MANTINE",
             "ev": 2,
             "rate": 5.0,
-            "levels": "35-40"
+            "levels": "35-40",
+            "other_evs": {}
           },
           {
             "species": "TENTACRUEL",
             "ev": 2,
             "rate": 5.0,
-            "levels": "35-40"
+            "levels": "35-40",
+            "other_evs": {}
+          },
+          {
+            "species": "TENTACOOL",
+            "ev": 1,
+            "rate": 90.0,
+            "levels": "5-35",
+            "other_evs": {}
           }
         ]
       },
@@ -23168,22 +23928,25 @@
         "purity": 100.0,
         "pokemon": [
           {
+            "species": "TENTACRUEL",
+            "ev": 2,
+            "rate": 5.0,
+            "levels": "35-40",
+            "other_evs": {}
+          },
+          {
             "species": "TENTACOOL",
             "ev": 1,
             "rate": 65.0,
-            "levels": "5-40"
+            "levels": "5-40",
+            "other_evs": {}
           },
           {
             "species": "HOPPIP",
             "ev": 1,
             "rate": 30.0,
-            "levels": "5-15"
-          },
-          {
-            "species": "TENTACRUEL",
-            "ev": 2,
-            "rate": 5.0,
-            "levels": "35-40"
+            "levels": "5-15",
+            "other_evs": {}
           }
         ]
       },
@@ -23196,22 +23959,25 @@
         "purity": 100.0,
         "pokemon": [
           {
+            "species": "TENTACRUEL",
+            "ev": 2,
+            "rate": 5.0,
+            "levels": "35-40",
+            "other_evs": {}
+          },
+          {
             "species": "TENTACOOL",
             "ev": 1,
             "rate": 65.0,
-            "levels": "5-40"
+            "levels": "5-40",
+            "other_evs": {}
           },
           {
             "species": "HOPPIP",
             "ev": 1,
             "rate": 30.0,
-            "levels": "5-15"
-          },
-          {
-            "species": "TENTACRUEL",
-            "ev": 2,
-            "rate": 5.0,
-            "levels": "35-40"
+            "levels": "5-15",
+            "other_evs": {}
           }
         ]
       },
@@ -23224,22 +23990,25 @@
         "purity": 100.0,
         "pokemon": [
           {
+            "species": "TENTACRUEL",
+            "ev": 2,
+            "rate": 5.0,
+            "levels": "35-40",
+            "other_evs": {}
+          },
+          {
             "species": "TENTACOOL",
             "ev": 1,
             "rate": 65.0,
-            "levels": "5-40"
+            "levels": "5-40",
+            "other_evs": {}
           },
           {
             "species": "HOPPIP",
             "ev": 1,
             "rate": 30.0,
-            "levels": "5-15"
-          },
-          {
-            "species": "TENTACRUEL",
-            "ev": 2,
-            "rate": 5.0,
-            "levels": "35-40"
+            "levels": "5-15",
+            "other_evs": {}
           }
         ]
       },
@@ -23252,22 +24021,25 @@
         "purity": 100.0,
         "pokemon": [
           {
+            "species": "TENTACRUEL",
+            "ev": 2,
+            "rate": 5.0,
+            "levels": "35-40",
+            "other_evs": {}
+          },
+          {
             "species": "TENTACOOL",
             "ev": 1,
             "rate": 65.0,
-            "levels": "5-40"
+            "levels": "5-40",
+            "other_evs": {}
           },
           {
             "species": "HOPPIP",
             "ev": 1,
             "rate": 30.0,
-            "levels": "5-15"
-          },
-          {
-            "species": "TENTACRUEL",
-            "ev": 2,
-            "rate": 5.0,
-            "levels": "35-40"
+            "levels": "5-15",
+            "other_evs": {}
           }
         ]
       },
@@ -23280,22 +24052,25 @@
         "purity": 100.0,
         "pokemon": [
           {
+            "species": "TENTACRUEL",
+            "ev": 2,
+            "rate": 5.0,
+            "levels": "35-40",
+            "other_evs": {}
+          },
+          {
             "species": "TENTACOOL",
             "ev": 1,
             "rate": 65.0,
-            "levels": "5-40"
+            "levels": "5-40",
+            "other_evs": {}
           },
           {
             "species": "HOPPIP",
             "ev": 1,
             "rate": 30.0,
-            "levels": "5-15"
-          },
-          {
-            "species": "TENTACRUEL",
-            "ev": 2,
-            "rate": 5.0,
-            "levels": "35-40"
+            "levels": "5-15",
+            "other_evs": {}
           }
         ]
       },
@@ -23308,22 +24083,25 @@
         "purity": 100.0,
         "pokemon": [
           {
+            "species": "TENTACRUEL",
+            "ev": 2,
+            "rate": 5.0,
+            "levels": "35-40",
+            "other_evs": {}
+          },
+          {
             "species": "TENTACOOL",
             "ev": 1,
             "rate": 65.0,
-            "levels": "5-40"
+            "levels": "5-40",
+            "other_evs": {}
           },
           {
             "species": "HOPPIP",
             "ev": 1,
             "rate": 30.0,
-            "levels": "5-15"
-          },
-          {
-            "species": "TENTACRUEL",
-            "ev": 2,
-            "rate": 5.0,
-            "levels": "35-40"
+            "levels": "5-15",
+            "other_evs": {}
           }
         ]
       },
@@ -23336,22 +24114,25 @@
         "purity": 100.0,
         "pokemon": [
           {
+            "species": "TENTACRUEL",
+            "ev": 2,
+            "rate": 5.0,
+            "levels": "35-40",
+            "other_evs": {}
+          },
+          {
             "species": "TENTACOOL",
             "ev": 1,
             "rate": 65.0,
-            "levels": "5-40"
+            "levels": "5-40",
+            "other_evs": {}
           },
           {
             "species": "HOPPIP",
             "ev": 1,
             "rate": 30.0,
-            "levels": "5-15"
-          },
-          {
-            "species": "TENTACRUEL",
-            "ev": 2,
-            "rate": 5.0,
-            "levels": "35-40"
+            "levels": "5-15",
+            "other_evs": {}
           }
         ]
       },
@@ -23364,16 +24145,18 @@
         "purity": 100.0,
         "pokemon": [
           {
-            "species": "TENTACOOL",
-            "ev": 1,
-            "rate": 95.0,
-            "levels": "5-40"
-          },
-          {
             "species": "TENTACRUEL",
             "ev": 2,
             "rate": 5.0,
-            "levels": "35-40"
+            "levels": "35-40",
+            "other_evs": {}
+          },
+          {
+            "species": "TENTACOOL",
+            "ev": 1,
+            "rate": 95.0,
+            "levels": "5-40",
+            "other_evs": {}
           }
         ]
       }

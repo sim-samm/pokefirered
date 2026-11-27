@@ -378,6 +378,43 @@ class EVTrainerApp:
         save_btn.background_color = "#E8F0FE"
         save_btn.corner_radius = 8
         v.add_subview(save_btn)
+        y += BTN_H + 10
+
+        def reset_evs(sender):
+            for stat in STATS:
+                if stat in stat_fields:
+                    stat_fields[stat][1].text = "0"
+
+        reset_btn = ui.Button(
+            title="Reset Current EVs to 0",
+            frame=(PAD, y, cw, BTN_H),
+            font=("<system>", 14),
+            action=reset_evs,
+        )
+        reset_btn.tint_color = "#FF9500"
+        reset_btn.border_width = 1
+        reset_btn.border_color = "#FF9500"
+        reset_btn.corner_radius = 6
+        v.add_subview(reset_btn)
+        y += BTN_H + 10
+
+        if not is_new:
+            def delete_pokemon(sender):
+                self.session.party.remove_pokemon(index)
+                self._save_session()
+                self.nav.pop_view()
+
+            delete_btn = ui.Button(
+                title="Delete Pokémon",
+                frame=(PAD, y, cw, BTN_H),
+                font=("<system>", 14),
+                action=delete_pokemon,
+            )
+            delete_btn.tint_color = "#FF3B30"
+            delete_btn.border_width = 1
+            delete_btn.border_color = "#FF3B30"
+            delete_btn.corner_radius = 6
+            v.add_subview(delete_btn)
 
         def show_presets(sender):
             self._show_preset_picker(stat_fields)
@@ -460,6 +497,7 @@ class EVTrainerApp:
     def _refresh_spot_list(self, view, spot_type):
         stat = view.current_stat
         items = []
+        spot_data = []
 
         best = self.ev_data.get("best_spots", {}).get(stat, [])
         if spot_type in ("wild", "both"):
@@ -471,7 +509,9 @@ class EVTrainerApp:
                 species_str = ", ".join(p["species"].title() for p in pokemon[:2])
                 items.append({
                     "title": f"[W] {loc}\n{purity}% pure, {ev_rate:.1f} EV/enc — {species_str}",
+                    "accessory_type": "disclosure_indicator",
                 })
+                spot_data.append({"type": "wild", "data": spot, "stat": stat})
 
         if spot_type in ("trainer", "both"):
             trainer_items = []
@@ -484,11 +524,240 @@ class EVTrainerApp:
             for evs, money, t in trainer_items[:6]:
                 items.append({
                     "title": f"[T] {t.location} - {t.trainer_name}\n{evs} EVs, ¥{money:,}",
+                    "accessory_type": "disclosure_indicator",
                 })
+                spot_data.append({"type": "trainer", "data": t, "stat": stat, "evs": evs, "money": money})
+
+        view.spot_data = spot_data
+
+        def on_spot_select(sender):
+            idx = sender.selected_row
+            if 0 <= idx < len(spot_data):
+                self._show_spot_detail(spot_data[idx])
 
         ds = ui.ListDataSource(items if items else [{"title": "No spots found"}])
+        ds.action = on_spot_select
         view.table_view.data_source = view.table_view.delegate = ds
         view.table_view.reload()
+
+    def _show_spot_detail(self, spot_info):
+        stat = spot_info["stat"]
+        is_trainer = spot_info["type"] == "trainer"
+
+        v = ui.View(name="Spot Details", background_color="white")
+        sw = _screen_width()
+        cw = _content_width()
+        y = PAD + 50
+
+        active = self.session.active_pokemon
+        remaining = active.remaining_evs(stat) if active else 0
+        macho = active.using_macho_brace if active else False
+
+        if is_trainer:
+            t = spot_info["data"]
+            evs_per = spot_info["evs"]
+            money = spot_info["money"]
+
+            title = ui.Label(
+                frame=(PAD, y, cw, 24),
+                font=("<system-bold>", 16),
+                text=f"{t.location}",
+            )
+            v.add_subview(title)
+            y += 28
+
+            trainer_lbl = ui.Label(
+                frame=(PAD, y, cw, 20),
+                font=("<system>", 14),
+                text=f"Trainer: {t.trainer_name} ({t.trainer_class.replace('_', ' ').title()})",
+                text_color="#555555",
+            )
+            v.add_subview(trainer_lbl)
+            y += 28
+
+            pokemon_lines = []
+            for p in t.pokemon_list:
+                sp = p.get("species", "?").replace("_", " ").title()
+                lv = p.get("level", "?")
+                evs = p.get("evs", {})
+                ev_str = ", ".join(f"+{val} {k}" for k, val in evs.items() if val > 0)
+                pokemon_lines.append(f"• Lv{lv} {sp}: {ev_str}")
+
+            strategy = f"Battle all {len(t.pokemon_list)} Pokémon"
+            pokemon_text = "\n".join(pokemon_lines)
+
+            strat_lbl = ui.Label(
+                frame=(PAD, y, cw, 20),
+                font=("<system-bold>", 13),
+                text="Strategy:",
+            )
+            v.add_subview(strat_lbl)
+            y += 22
+
+            strat_val = ui.Label(
+                frame=(PAD, y, cw, 20),
+                font=("<system>", 13),
+                text=strategy,
+                text_color="#007AFF",
+            )
+            v.add_subview(strat_val)
+            y += 28
+
+            pokemon_lbl = ui.Label(
+                frame=(PAD, y, cw, 20),
+                font=("<system-bold>", 13),
+                text="Pokémon:",
+            )
+            v.add_subview(pokemon_lbl)
+            y += 22
+
+            pokemon_tv = ui.TextView(
+                frame=(PAD, y, cw, 100),
+                font=("<system>", 12),
+                editable=False,
+            )
+            pokemon_tv.text = pokemon_text
+            v.add_subview(pokemon_tv)
+            y += 110
+
+            ev_per_battle = evs_per
+
+        else:
+            spot = spot_info["data"]
+            loc = spot.get("location", "?")
+            purity = spot.get("purity", 0)
+            ev_rate = spot.get("ev_rate", 0)
+            pokemon = spot.get("pokemon", [])
+
+            title = ui.Label(
+                frame=(PAD, y, cw, 24),
+                font=("<system-bold>", 16),
+                text=loc,
+            )
+            v.add_subview(title)
+            y += 28
+
+            method = spot.get("method", "land").title()
+            ver = spot.get("version", "both")
+            ver_str = f" ({ver.title()})" if ver != "both" else ""
+            method_lbl = ui.Label(
+                frame=(PAD, y, cw, 20),
+                font=("<system>", 14),
+                text=f"Method: {method}{ver_str}",
+                text_color="#555555",
+            )
+            v.add_subview(method_lbl)
+            y += 28
+
+            target_pokemon = [p for p in pokemon if p.get("ev", 0) > 0]
+            other_pokemon = [p for p in pokemon if p.get("ev", 0) == 0 and p.get("other_evs")]
+            neutral_pokemon = [p for p in pokemon if p.get("ev", 0) == 0 and not p.get("other_evs")]
+
+            ko_list = ", ".join(f"{p['species'].title()} (+{p['ev']})" for p in target_pokemon)
+
+            run_parts = []
+            for p in other_pokemon[:3]:
+                sp = p["species"].title()
+                other = p.get("other_evs", {})
+                other_str = "/".join(f"+{v}{k[:3]}" for k, v in other.items())
+                run_parts.append(f"{sp} ({other_str})")
+            run_list = ", ".join(run_parts)
+
+            if purity >= 100:
+                strategy = f"KO everything: {ko_list}"
+            elif run_list:
+                strategy = f"KO: {ko_list}\nRun from: {run_list}"
+            else:
+                strategy = f"KO: {ko_list}"
+
+            strat_lbl = ui.Label(
+                frame=(PAD, y, cw, 20),
+                font=("<system-bold>", 13),
+                text="Strategy:",
+            )
+            v.add_subview(strat_lbl)
+            y += 22
+
+            strat_tv = ui.TextView(
+                frame=(PAD, y, cw, 50),
+                font=("<system>", 13),
+                editable=False,
+            )
+            strat_tv.text = strategy
+            v.add_subview(strat_tv)
+            y += 58
+
+            pokemon_lbl = ui.Label(
+                frame=(PAD, y, cw, 20),
+                font=("<system-bold>", 13),
+                text="Encounters:",
+            )
+            v.add_subview(pokemon_lbl)
+            y += 22
+
+            enc_lines = []
+            for p in pokemon:
+                sp = p["species"].title()
+                rate = p.get("rate", 0)
+                ev = p.get("ev", 0)
+                levels = p.get("levels", "?")
+                other_evs = p.get("other_evs", {})
+                if ev > 0:
+                    ev_str = f"+{ev} {stat} ✓"
+                elif other_evs:
+                    other_str = ", ".join(f"+{v} {k}" for k, v in other_evs.items())
+                    ev_str = f"({other_str}) ✗"
+                else:
+                    ev_str = "(no EVs)"
+                enc_lines.append(f"• {rate}% Lv{levels} {sp}: {ev_str}")
+
+            enc_tv = ui.TextView(
+                frame=(PAD, y, cw, 100),
+                font=("<system>", 12),
+                editable=False,
+            )
+            enc_tv.text = "\n".join(enc_lines)
+            v.add_subview(enc_tv)
+            y += 110
+
+            ev_per_battle = ev_rate
+            money = 0
+
+        calc_lbl = ui.Label(
+            frame=(PAD, y, cw, 20),
+            font=("<system-bold>", 13),
+            text="Calculations:",
+        )
+        v.add_subview(calc_lbl)
+        y += 24
+
+        if active and remaining > 0:
+            multiplier = 2 if macho else 1
+            effective_ev = ev_per_battle * multiplier
+            battles_needed = battles_to_goal(remaining, ev_per_battle, macho)
+
+            calc_lines = [
+                f"Active: {active.name}",
+                f"Remaining {stat} EVs: {remaining}",
+                f"EVs per battle: {ev_per_battle:.1f}" + (" × 2 Macho Brace" if macho else ""),
+                f"Effective: {effective_ev:.1f} EVs/battle",
+                f"Battles needed: {battles_needed}",
+            ]
+            if is_trainer and money > 0:
+                total_money = battles_needed * money
+                calc_lines.append(f"Money earned: ¥{total_money:,}")
+        else:
+            calc_lines = ["No active Pokémon or target already met"]
+
+        calc_tv = ui.TextView(
+            frame=(PAD, y, cw, 120),
+            font=("<monospaced>", 12),
+            editable=False,
+        )
+        calc_tv.text = "\n".join(calc_lines)
+        v.add_subview(calc_tv)
+
+        self.nav.push_view(v)
 
     def _show_training(self, sender):
         if not self.session.party.pokemon:

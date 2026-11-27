@@ -159,6 +159,7 @@ def find_best_spots(spots: list[dict]) -> dict[str, list[dict]]:
             rate = ev_rates.get(stat, 0)
             if rate > 0:
                 purity = calculate_purity(spot, stat)
+                all_pokemon = get_all_pokemon(spot, stat)
                 best[stat].append({
                     "location": spot["location"],
                     "location_id": spot["location_id"],
@@ -166,7 +167,7 @@ def find_best_spots(spots: list[dict]) -> dict[str, list[dict]]:
                     "version": spot["version"],
                     "ev_rate": rate,
                     "purity": round(purity, 1),
-                    "pokemon": get_stat_pokemon(spot, stat),
+                    "pokemon": all_pokemon,
                 })
 
     for stat in STATS:
@@ -215,6 +216,26 @@ def get_stat_pokemon(spot: dict, target_stat: str) -> list[dict]:
             })
 
     return sorted(result, key=lambda x: (-x["rate"], x["species"]))
+
+
+def get_all_pokemon(spot: dict, target_stat: str) -> list[dict]:
+    """Get all pokemon in spot, marking which yield the target stat."""
+    pokemon = spot.get("pokemon", {})
+    result = []
+
+    for sp_key, data in pokemon.items():
+        evs = data.get("evs", {})
+        ev_val = evs.get(target_stat, 0)
+        lo, hi = data.get("levels", (1, 1))
+        result.append({
+            "species": sp_key,
+            "ev": ev_val,
+            "rate": data.get("rate", 0),
+            "levels": f"{lo}-{hi}" if lo != hi else str(lo),
+            "other_evs": {k: v for k, v in evs.items() if k != target_stat and v > 0},
+        })
+
+    return sorted(result, key=lambda x: (-x["ev"], -x["rate"], x["species"]))
 
 
 def main():
