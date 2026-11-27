@@ -6,13 +6,15 @@ Pythonista tap GUI for the FR/LG EV Training helper.
 Keep beside: ev_trainer.py, ev_data.json, trainer_spots.json
 Run this file in Pythonista. Text/CLI: ev_trainer.py
 
-Version: 1.1.0 (2026-11-27)
-- Delete Pokémon button on edit screen
-- Reset Current EVs button
-- Spot detail screen with strategy and calculations
+Version: 1.2.0 (2026-11-27)
+- Amulet Coin per-Pokemon (on edit screen)
+- In-rotation checkboxes for multi-Pokemon training
+- Remember selected spot in training session
+- Vitamin opportunity notifications
+- Scrollable edit screen (buttons now visible)
 """
 
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 
 import json
 import sys
@@ -266,10 +268,19 @@ class EVTrainerApp:
         items = []
         for i, mon in enumerate(self.session.party.pokemon):
             remaining = mon.total_remaining()
-            status = "✓" if mon.is_complete() else f"{remaining} EVs left"
-            brace = " [MB]" if mon.using_macho_brace else ""
+            status = "✓ Done" if mon.is_complete() else f"{remaining} EVs left"
+            tags = []
+            if mon.in_rotation:
+                tags.append("●")
+            else:
+                tags.append("○")
+            if mon.using_macho_brace:
+                tags.append("MB")
+            if mon.holding_amulet_coin:
+                tags.append("AC")
+            tag_str = " ".join(tags)
             items.append({
-                "title": f"{mon.name}{brace}\n{status}",
+                "title": f"{tag_str} {mon.name}\n   {status}",
                 "accessory_type": "disclosure_indicator",
             })
         return items
@@ -295,7 +306,12 @@ class EVTrainerApp:
         v = ui.View(name="Edit Pokémon" if not is_new else "Add Pokémon", background_color="white")
         sw = _screen_width()
         cw = _content_width()
-        y = PAD + 50
+
+        scroll = ui.ScrollView(frame=(0, 50, sw, 500), flex="WH")
+        scroll.content_size = (sw, 650)
+        v.add_subview(scroll)
+
+        y = PAD
 
         name_field = ui.TextField(
             frame=(PAD, y, cw, 32),
@@ -303,7 +319,7 @@ class EVTrainerApp:
             font=("<system>", 16),
         )
         name_field.text = mon.name
-        v.add_subview(name_field)
+        scroll.add_subview(name_field)
         y += 40
 
         preset_btn = ui.Button(
@@ -312,47 +328,117 @@ class EVTrainerApp:
             font=("<system>", 14),
         )
         preset_btn.tint_color = "#5856D6"
-        v.add_subview(preset_btn)
-        y += BTN_H + 10
+        scroll.add_subview(preset_btn)
+        y += BTN_H + 6
+
+        hdr_lbl = ui.Label(
+            frame=(PAD, y, cw, 20),
+            text="          Target  Current",
+            font=("<system>", 11),
+            text_color="#888888",
+        )
+        scroll.add_subview(hdr_lbl)
+        y += 22
 
         stat_fields = {}
         for stat in STATS:
             lbl = ui.Label(
-                frame=(PAD, y, 70, 28),
+                frame=(PAD, y, 65, 28),
                 text=stat,
                 font=("<system>", 14),
             )
-            v.add_subview(lbl)
+            scroll.add_subview(lbl)
 
             target_field = ui.TextField(
-                frame=(80, y, 60, 28),
+                frame=(75, y, 55, 28),
                 placeholder="0",
                 keyboard_type=ui.KEYBOARD_NUMBER_PAD,
             )
             target_field.text = str(mon.target_evs.get(stat, 0))
-            v.add_subview(target_field)
+            scroll.add_subview(target_field)
 
             current_field = ui.TextField(
-                frame=(150, y, 60, 28),
+                frame=(140, y, 55, 28),
                 placeholder="0",
                 keyboard_type=ui.KEYBOARD_NUMBER_PAD,
             )
             current_field.text = str(mon.current_evs.get(stat, 0))
-            v.add_subview(current_field)
+            scroll.add_subview(current_field)
 
             stat_fields[stat] = (target_field, current_field)
-            y += 34
+            y += 32
+
+        y += 6
+
+        rotation_switch = ui.Switch(frame=(PAD, y, 60, 30))
+        rotation_switch.value = mon.in_rotation
+        scroll.add_subview(rotation_switch)
+        rotation_lbl = ui.Label(
+            frame=(70, y, cw - 70, 28),
+            text="In Rotation (gets EVs)",
+            font=("<system>", 14),
+        )
+        scroll.add_subview(rotation_lbl)
+        y += 36
 
         brace_switch = ui.Switch(frame=(PAD, y, 60, 30))
         brace_switch.value = mon.using_macho_brace
-        v.add_subview(brace_switch)
+        scroll.add_subview(brace_switch)
         brace_lbl = ui.Label(
             frame=(70, y, cw - 70, 28),
             text="Macho Brace (2× EVs)",
             font=("<system>", 14),
         )
-        v.add_subview(brace_lbl)
-        y += 40
+        scroll.add_subview(brace_lbl)
+        y += 36
+
+        amulet_switch = ui.Switch(frame=(PAD, y, 60, 30))
+        amulet_switch.value = mon.holding_amulet_coin
+        scroll.add_subview(amulet_switch)
+        amulet_lbl = ui.Label(
+            frame=(70, y, cw - 70, 28),
+            text="Amulet Coin (2× money)",
+            font=("<system>", 14),
+        )
+        scroll.add_subview(amulet_lbl)
+        y += 44
+
+        def reset_evs(sender):
+            for stat in STATS:
+                if stat in stat_fields:
+                    stat_fields[stat][1].text = "0"
+
+        reset_btn = ui.Button(
+            title="Reset Current EVs to 0",
+            frame=(PAD, y, cw, BTN_H),
+            font=("<system>", 14),
+            action=reset_evs,
+        )
+        reset_btn.tint_color = "#FF9500"
+        reset_btn.border_width = 1
+        reset_btn.border_color = "#FF9500"
+        reset_btn.corner_radius = 6
+        scroll.add_subview(reset_btn)
+        y += BTN_H + 8
+
+        if not is_new:
+            def delete_pokemon(sender):
+                self.session.party.remove_pokemon(index)
+                self._save_session()
+                self.nav.pop_view()
+
+            delete_btn = ui.Button(
+                title="Delete Pokémon",
+                frame=(PAD, y, cw, BTN_H),
+                font=("<system>", 14),
+                action=delete_pokemon,
+            )
+            delete_btn.tint_color = "#FF3B30"
+            delete_btn.border_width = 1
+            delete_btn.border_color = "#FF3B30"
+            delete_btn.corner_radius = 6
+            scroll.add_subview(delete_btn)
+            y += BTN_H + 8
 
         def save_pokemon(sender):
             name = name_field.text.strip()
@@ -375,7 +461,12 @@ class EVTrainerApp:
                 _show_message("Invalid Spread", "\n".join(errors))
                 return
 
-            new_mon = Pokemon(name, target, current, brace_switch.value)
+            new_mon = Pokemon(
+                name, target, current,
+                using_macho_brace=brace_switch.value,
+                holding_amulet_coin=amulet_switch.value,
+                in_rotation=rotation_switch.value,
+            )
 
             if is_new:
                 self.session.party.add_pokemon(new_mon)
@@ -394,44 +485,10 @@ class EVTrainerApp:
         save_btn.tint_color = "#007AFF"
         save_btn.background_color = "#E8F0FE"
         save_btn.corner_radius = 8
-        v.add_subview(save_btn)
-        y += BTN_H + 10
+        scroll.add_subview(save_btn)
+        y += BTN_H + 20
 
-        def reset_evs(sender):
-            for stat in STATS:
-                if stat in stat_fields:
-                    stat_fields[stat][1].text = "0"
-
-        reset_btn = ui.Button(
-            title="Reset Current EVs to 0",
-            frame=(PAD, y, cw, BTN_H),
-            font=("<system>", 14),
-            action=reset_evs,
-        )
-        reset_btn.tint_color = "#FF9500"
-        reset_btn.border_width = 1
-        reset_btn.border_color = "#FF9500"
-        reset_btn.corner_radius = 6
-        v.add_subview(reset_btn)
-        y += BTN_H + 10
-
-        if not is_new:
-            def delete_pokemon(sender):
-                self.session.party.remove_pokemon(index)
-                self._save_session()
-                self.nav.pop_view()
-
-            delete_btn = ui.Button(
-                title="Delete Pokémon",
-                frame=(PAD, y, cw, BTN_H),
-                font=("<system>", 14),
-                action=delete_pokemon,
-            )
-            delete_btn.tint_color = "#FF3B30"
-            delete_btn.border_width = 1
-            delete_btn.border_color = "#FF3B30"
-            delete_btn.corner_radius = 6
-            v.add_subview(delete_btn)
+        scroll.content_size = (sw, y)
 
         def show_presets(sender):
             self._show_preset_picker(stat_fields)
@@ -743,28 +800,34 @@ class EVTrainerApp:
         calc_lbl = ui.Label(
             frame=(PAD, y, cw, 20),
             font=("<system-bold>", 13),
-            text="Calculations:",
+            text="Calculations (all in rotation):",
         )
         v.add_subview(calc_lbl)
         y += 24
 
-        if active and remaining > 0:
-            multiplier = 2 if macho else 1
-            effective_ev = ev_per_battle * multiplier
-            battles_needed = battles_to_goal(remaining, ev_per_battle, macho)
-
-            calc_lines = [
-                f"Active: {active.name}",
-                f"Remaining {stat} EVs: {remaining}",
-                f"EVs per battle: {ev_per_battle:.1f}" + (" × 2 Macho Brace" if macho else ""),
-                f"Effective: {effective_ev:.1f} EVs/battle",
-                f"Battles needed: {battles_needed}",
-            ]
+        in_rotation = self.session.pokemon_in_rotation()
+        if in_rotation:
+            calc_lines = []
+            for mon in in_rotation:
+                mon_remaining = mon.remaining_evs(stat)
+                if mon_remaining > 0:
+                    mult = 2 if mon.using_macho_brace else 1
+                    effective = ev_per_battle * mult
+                    battles = battles_to_goal(mon_remaining, ev_per_battle, mon.using_macho_brace)
+                    mb_tag = " [MB]" if mon.using_macho_brace else ""
+                    calc_lines.append(f"{mon.name}{mb_tag}: {battles} battles ({mon_remaining} EVs left)")
+            if not calc_lines:
+                calc_lines = ["All Pokémon in rotation have met their target!"]
             if is_trainer and money > 0:
-                total_money = battles_needed * money
-                calc_lines.append(f"Money earned: ¥{total_money:,}")
+                max_battles = max(
+                    battles_to_goal(m.remaining_evs(stat), ev_per_battle, m.using_macho_brace)
+                    for m in in_rotation if m.remaining_evs(stat) > 0
+                ) if any(m.remaining_evs(stat) > 0 for m in in_rotation) else 0
+                if max_battles > 0:
+                    total_money = max_battles * money
+                    calc_lines.append(f"Money earned: ¥{total_money:,}")
         else:
-            calc_lines = ["No active Pokémon or target already met"]
+            calc_lines = ["No Pokémon in rotation"]
 
         calc_tv = ui.TextView(
             frame=(PAD, y, cw, 120),
@@ -773,6 +836,24 @@ class EVTrainerApp:
         )
         calc_tv.text = "\n".join(calc_lines)
         v.add_subview(calc_tv)
+        y += 130
+
+        def select_spot(sender):
+            self.session.selected_spot = spot_info
+            self.session.target_stat = stat
+            self._save_session()
+            self.nav.pop_to_root_view()
+
+        select_btn = ui.Button(
+            title="Train Here",
+            frame=(PAD, y, cw, BTN_H),
+            font=("<system-bold>", 16),
+            action=select_spot,
+        )
+        select_btn.tint_color = "white"
+        select_btn.background_color = "#34C759"
+        select_btn.corner_radius = 8
+        v.add_subview(select_btn)
 
         self.nav.push_view(v)
 
@@ -781,58 +862,109 @@ class EVTrainerApp:
             _show_message("No Party", "Add Pokémon in Party Setup first")
             return
 
+        in_rotation = self.session.pokemon_in_rotation()
+        if not in_rotation:
+            _show_message("No Active", "Enable 'In Rotation' for at least one Pokémon")
+            return
+
         v = ui.View(name="Training", background_color="white")
         sw = _screen_width()
         cw = _content_width()
-        y = PAD + 50
 
-        active = self.session.active_pokemon
-        if not active:
-            self.session.active_index = 0
-            active = self.session.active_pokemon
+        scroll = ui.ScrollView(frame=(0, 50, sw, 500), flex="WH")
+        scroll.content_size = (sw, 700)
+        v.add_subview(scroll)
+        v.scroll = scroll
 
-        name_lbl = ui.Label(
-            frame=(PAD, y, cw, 28),
-            font=("<system-bold>", 18),
-            text=active.name if active else "None",
+        y = PAD
+
+        spot = self.session.selected_spot
+        stat = self.session.target_stat
+        if spot:
+            spot_type = spot.get("type", "wild")
+            if spot_type == "trainer":
+                t = spot.get("data", {})
+                loc = t.location if hasattr(t, 'location') else spot.get("data", {}).get("location", "?")
+                spot_name = f"[T] {loc}"
+            else:
+                spot_name = f"[W] {spot.get('data', {}).get('location', '?')}"
+            spot_lbl = ui.Label(
+                frame=(PAD, y, cw, 20),
+                font=("<system-bold>", 13),
+                text=f"Training: {spot_name}",
+                text_color="#007AFF",
+            )
+            scroll.add_subview(spot_lbl)
+            y += 24
+            if stat:
+                stat_lbl = ui.Label(
+                    frame=(PAD, y, cw, 18),
+                    font=("<system>", 12),
+                    text=f"Target stat: {stat}",
+                    text_color="#666666",
+                )
+                scroll.add_subview(stat_lbl)
+                y += 22
+        else:
+            no_spot = ui.Label(
+                frame=(PAD, y, cw, 20),
+                font=("<system>", 12),
+                text="No spot selected (use Spot Finder)",
+                text_color="#999999",
+            )
+            scroll.add_subview(no_spot)
+            y += 24
+
+        rotation_lbl = ui.Label(
+            frame=(PAD, y, cw, 20),
+            font=("<system-bold>", 14),
+            text=f"In Rotation ({len(in_rotation)}):",
         )
-        v.add_subview(name_lbl)
-        v.name_label = name_lbl
-        y += 34
+        scroll.add_subview(rotation_lbl)
+        y += 24
 
-        ev_text = ui.TextView(
-            frame=(PAD, y, cw, 150),
-            font=("<monospaced>", 12),
-            editable=False,
-        )
-        ev_text.text = format_ev_summary(active) if active else ""
-        v.add_subview(ev_text)
-        v.ev_text = ev_text
-        y += 160
+        for mon in in_rotation:
+            remaining = mon.total_remaining()
+            tags = []
+            if mon.using_macho_brace:
+                tags.append("MB")
+            if mon.holding_amulet_coin:
+                tags.append("AC")
+            tag_str = f" [{','.join(tags)}]" if tags else ""
+            status = "✓" if remaining == 0 else f"{remaining} left"
+            mon_lbl = ui.Label(
+                frame=(PAD, y, cw, 18),
+                font=("<system>", 12),
+                text=f"• {mon.name}{tag_str}: {status}",
+            )
+            scroll.add_subview(mon_lbl)
+            y += 20
+
+        y += 10
 
         money_lbl = ui.Label(
             frame=(PAD, y, cw, 24),
             font=("<system>", 14),
-            text=f"¥{self.session.party.money:,}",
+            text=f"¥{self.session.party.money:,}  |  Battles: {self.session.battle_count}",
         )
-        v.add_subview(money_lbl)
+        scroll.add_subview(money_lbl)
         v.money_label = money_lbl
         y += 30
 
         ko_btn = ui.Button(
-            title="Record KO (+1 EV)",
+            title="Record KO",
             frame=(PAD, y, cw // 2 - 5, BTN_H),
             font=("<system>", 14),
-            action=lambda s: self._record_quick_ko(v),
+            action=lambda s: self._record_ko_for_stat(v),
         )
         ko_btn.tint_color = "#34C759"
         ko_btn.border_width = 1
         ko_btn.border_color = "#34C759"
         ko_btn.corner_radius = 6
-        v.add_subview(ko_btn)
+        scroll.add_subview(ko_btn)
 
         species_btn = ui.Button(
-            title="Select Species",
+            title="Pick Species",
             frame=(PAD + cw // 2 + 5, y, cw // 2 - 5, BTN_H),
             font=("<system>", 14),
             action=lambda s: self._show_species_picker(v),
@@ -841,7 +973,7 @@ class EVTrainerApp:
         species_btn.border_width = 1
         species_btn.border_color = "#5856D6"
         species_btn.corner_radius = 6
-        v.add_subview(species_btn)
+        scroll.add_subview(species_btn)
         y += BTN_H + 10
 
         vit_btn = ui.Button(
@@ -854,19 +986,63 @@ class EVTrainerApp:
         vit_btn.border_width = 1
         vit_btn.border_color = "#FF9500"
         vit_btn.corner_radius = 6
-        v.add_subview(vit_btn)
+        scroll.add_subview(vit_btn)
         y += BTN_H + 10
 
-        switch_btn = ui.Button(
-            title="Switch Active Pokémon",
+        opps = self.session.check_vitamin_opportunity()
+        if opps:
+            opp = opps[0]
+            opp_text = f"💡 Buy {opp['vitamins']} vitamin(s) for {opp['pokemon']} ({opp['stat']}), save ~{opp['battles_saved']} battles"
+            opp_lbl = ui.Label(
+                frame=(PAD, y, cw, 36),
+                font=("<system>", 11),
+                text=opp_text,
+                text_color="#FF9500",
+                number_of_lines=2,
+            )
+            scroll.add_subview(opp_lbl)
+            y += 40
+
+        clear_btn = ui.Button(
+            title="Clear Spot",
             frame=(PAD, y, cw, BTN_H),
             font=("<system>", 14),
-            action=lambda s: self._show_active_picker(v),
+            action=lambda s: self._clear_spot(v),
         )
-        switch_btn.tint_color = "#007AFF"
-        v.add_subview(switch_btn)
+        clear_btn.tint_color = "#8E8E93"
+        scroll.add_subview(clear_btn)
 
+        scroll.content_size = (sw, y + BTN_H + 20)
         self.nav.push_view(v)
+
+    def _record_ko_for_stat(self, view):
+        stat = self.session.target_stat
+        if not stat:
+            stat = "HP"
+            for s in STATS:
+                for mon in self.session.pokemon_in_rotation():
+                    if mon.remaining_evs(s) > 0:
+                        stat = s
+                        break
+
+        self.session.record_ko({stat: 1})
+        self._save_session()
+        self._check_vitamin_notification()
+        self.nav.pop_view()
+        self._show_training(None)
+
+    def _clear_spot(self, view):
+        self.session.selected_spot = None
+        self.session.target_stat = None
+        self._save_session()
+        self.nav.pop_view()
+        self._show_training(None)
+
+    def _check_vitamin_notification(self):
+        opps = self.session.check_vitamin_opportunity()
+        if opps:
+            opp = opps[0]
+            _console(f"Vitamin opportunity: {opp}")
 
     def _record_quick_ko(self, view):
         active = self.session.active_pokemon
@@ -930,14 +1106,17 @@ class EVTrainerApp:
                     evs = matches[idx]["evs"]
                     self.session.record_ko(evs)
                     self._save_session()
-                    self._refresh_training_view(v.training_view)
+                    self._check_vitamin_notification()
                     self.nav.pop_view()
+                    self.nav.pop_view()
+                    self._show_training(None)
 
             ds.action = on_select
             tv.data_source = tv.delegate = ds
             tv.reload()
 
         class SearchDelegate:
+            outer = self
             def textfield_did_change(self, tf):
                 update_list(tf.text)
 
@@ -954,8 +1133,9 @@ class EVTrainerApp:
             _show_message("Not Enough Money", f"Vitamins cost ¥{VITAMIN_PRICE:,}")
             return
 
-        active = self.session.active_pokemon
-        if not active:
+        in_rotation = self.session.pokemon_in_rotation()
+        if not in_rotation:
+            _show_message("No Pokémon", "No Pokémon in rotation")
             return
 
         v = ui.View(name="Use Vitamin", background_color="white")
@@ -964,75 +1144,42 @@ class EVTrainerApp:
         y = PAD + 50
 
         items = []
-        for stat in STATS:
-            current = active.current_evs.get(stat, 0)
-            usable = active.vitamins_usable(stat)
-            if usable > 0:
-                items.append({
-                    "title": f"{stat}: +{VITAMIN_EV} EVs\nCurrent: {current}, Can use: {usable}",
-                    "stat": stat,
-                })
+        item_data = []
+        for mon_idx, mon in enumerate(self.session.party.pokemon):
+            if not mon.in_rotation:
+                continue
+            for stat in STATS:
+                current = mon.current_evs.get(stat, 0)
+                usable = mon.vitamins_usable(stat)
+                remaining = mon.remaining_evs(stat)
+                if usable > 0 and remaining > 0:
+                    battles_saved = min(usable, remaining // VITAMIN_EV) * VITAMIN_EV
+                    items.append({
+                        "title": f"{mon.name} - {stat}: +{VITAMIN_EV} EVs\nCurrent: {current}, saves ~{battles_saved} battles",
+                    })
+                    item_data.append({"mon_idx": mon_idx, "stat": stat})
 
         if not items:
-            _show_message("Cannot Use", "No stats below vitamin cap (100 EVs)")
+            _show_message("Cannot Use", "No stats below vitamin cap (100 EVs) for Pokémon in rotation")
             return
 
-        tv = ui.TableView(frame=(PAD, y, cw, 300), flex="WH")
+        tv = ui.TableView(frame=(PAD, y, cw, 350), flex="WH")
         ds = ui.ListDataSource(items)
 
         def on_select(sender):
             idx = sender.selected_row
-            if 0 <= idx < len(items):
-                stat = items[idx]["stat"]
-                mon_idx = self.session.active_index
-                if self.session.party.buy_vitamin(mon_idx, stat):
+            if 0 <= idx < len(item_data):
+                data = item_data[idx]
+                if self.session.party.buy_vitamin(data["mon_idx"], data["stat"]):
                     self._save_session()
-                    self._refresh_training_view(training_view)
                     self.nav.pop_view()
+                    self.nav.pop_view()
+                    self._show_training(None)
 
         ds.action = on_select
         tv.data_source = tv.delegate = ds
         v.add_subview(tv)
         self.nav.push_view(v)
-
-    def _show_active_picker(self, training_view):
-        v = ui.View(name="Switch Pokémon", background_color="white")
-        sw = _screen_width()
-        cw = _content_width()
-
-        items = []
-        for i, mon in enumerate(self.session.party.pokemon):
-            remaining = mon.total_remaining()
-            current = "→ " if i == self.session.active_index else ""
-            items.append({
-                "title": f"{current}{mon.name}\n{remaining} EVs remaining",
-                "index": i,
-            })
-
-        tv = ui.TableView(frame=(PAD, PAD + 50, cw, 300), flex="WH")
-        ds = ui.ListDataSource(items)
-
-        def on_select(sender):
-            idx = sender.selected_row
-            if 0 <= idx < len(items):
-                self.session.active_index = items[idx]["index"]
-                self._save_session()
-                self._refresh_training_view(training_view)
-                self.nav.pop_view()
-
-        ds.action = on_select
-        tv.data_source = tv.delegate = ds
-        v.add_subview(tv)
-        self.nav.push_view(v)
-
-    def _refresh_training_view(self, view):
-        active = self.session.active_pokemon
-        if hasattr(view, "name_label"):
-            view.name_label.text = active.name if active else "None"
-        if hasattr(view, "ev_text"):
-            view.ev_text.text = format_ev_summary(active) if active else ""
-        if hasattr(view, "money_label"):
-            view.money_label.text = f"¥{self.session.party.money:,}"
 
     def _show_settings(self, sender):
         v = ui.View(name="Settings", background_color="white")
@@ -1047,12 +1194,14 @@ class EVTrainerApp:
         v.add_subview(ver_toggle)
         y += BTN_H + 20
 
-        coin_lbl = ui.Label(frame=(PAD, y, cw - 60, 24), text="Amulet Coin (2× money):", font=("<system>", 14))
-        v.add_subview(coin_lbl)
-        coin_switch = ui.Switch(frame=(cw - 50, y - 4, 60, 30))
-        coin_switch.value = self.session.party.amulet_coin_holder
-        coin_switch.action = self._on_amulet_toggle
-        v.add_subview(coin_switch)
+        note_lbl = ui.Label(
+            frame=(PAD, y, cw, 36),
+            text="Amulet Coin: Set per-Pokémon in Party Setup",
+            font=("<system>", 12),
+            text_color="#888888",
+            number_of_lines=2,
+        )
+        v.add_subview(note_lbl)
         y += 40
 
         money_lbl = ui.Label(frame=(PAD, y, 100, 24), text="Set Money:", font=("<system>", 14))
@@ -1116,10 +1265,6 @@ class EVTrainerApp:
             if hasattr(child, "paint"):
                 child.paint(idx)
         self.version = "firered" if idx == 0 else "leafgreen"
-
-    def _on_amulet_toggle(self, sender):
-        self.session.party.amulet_coin_holder = sender.value
-        self._save_session()
 
     def _update_money(self, view):
         try:

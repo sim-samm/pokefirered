@@ -68,6 +68,8 @@ class Pokemon:
     target_evs: dict[str, int] = field(default_factory=dict)
     current_evs: dict[str, int] = field(default_factory=dict)
     using_macho_brace: bool = False
+    holding_amulet_coin: bool = False
+    in_rotation: bool = True
 
     def __post_init__(self):
         for stat in STATS:
@@ -121,6 +123,8 @@ class Pokemon:
             "target_evs": dict(self.target_evs),
             "current_evs": dict(self.current_evs),
             "using_macho_brace": self.using_macho_brace,
+            "holding_amulet_coin": self.holding_amulet_coin,
+            "in_rotation": self.in_rotation,
         }
 
     @classmethod
@@ -130,6 +134,8 @@ class Pokemon:
             target_evs=d.get("target_evs", {}),
             current_evs=d.get("current_evs", {}),
             using_macho_brace=d.get("using_macho_brace", False),
+            holding_amulet_coin=d.get("holding_amulet_coin", False),
+            in_rotation=d.get("in_rotation", True),
         )
 
 
@@ -138,7 +144,6 @@ class Party:
     pokemon: list[Pokemon] = field(default_factory=list)
     money: int = 0
     exp_share_holder: int | None = None
-    amulet_coin_holder: bool = False
 
     def add_pokemon(self, mon: Pokemon) -> bool:
         if len(self.pokemon) >= 6:
@@ -156,12 +161,18 @@ class Party:
             return True
         return False
 
+    def has_amulet_coin(self) -> bool:
+        return any(p.holding_amulet_coin for p in self.pokemon)
+
+    def pokemon_in_rotation(self) -> list[Pokemon]:
+        return [p for p in self.pokemon if p.in_rotation]
+
     def add_battle_money(self, trainer_class: str, last_mon_level: int, is_double: bool = False) -> int:
         multiplier = TRAINER_MONEY_TABLE.get(trainer_class.upper(), 4)
         base = 4 * last_mon_level * multiplier
         if is_double:
             base *= 2
-        if self.amulet_coin_holder:
+        if self.has_amulet_coin():
             base *= 2
         self.money += base
         return base
@@ -185,7 +196,6 @@ class Party:
             "pokemon": [p.to_dict() for p in self.pokemon],
             "money": self.money,
             "exp_share_holder": self.exp_share_holder,
-            "amulet_coin_holder": self.amulet_coin_holder,
         }
 
     @classmethod
@@ -193,7 +203,6 @@ class Party:
         party = cls(
             money=d.get("money", 0),
             exp_share_holder=d.get("exp_share_holder"),
-            amulet_coin_holder=d.get("amulet_coin_holder", False),
         )
         for pd in d.get("pokemon", []):
             party.pokemon.append(Pokemon.from_dict(pd))
@@ -371,49 +380,67 @@ def load_trainer_spots(path: Path | None = None) -> list[TrainerSpot]:
 class Session:
     def __init__(self, party: Party | None = None):
         self.party = party or Party()
-        self.active_index: int = 0
         self.battle_count: int = 0
+        self.selected_spot: dict | None = None
+        self.target_stat: str | None = None
 
-    @property
-    def active_pokemon(self) -> Pokemon | None:
-        if 0 <= self.active_index < len(self.party.pokemon):
-            return self.party.pokemon[self.active_index]
-        return None
+    def pokemon_in_rotation(self) -> list[Pokemon]:
+        return self.party.pokemon_in_rotation()
 
-    def record_ko(self, ev_yields: dict[str, int]) -> dict[str, int]:
-        gains = {}
-        active = self.active_pokemon
-        if active:
-            multiplier = 2 if active.using_macho_brace else 1
+    def record_ko(self, ev_yields: dict[str, int]) -> dict[str, dict[str, int]]:
+        """Record a KO, applying EVs to all Pokemon in rotation. Returns gains per Pokemon."""
+        all_gains = {}
+        for mon in self.pokemon_in_rotation():
+            multiplier = 2 if mon.using_macho_brace else 1
+            gains = {}
             for stat, base in ev_yields.items():
                 stat = normalize_stat(stat)
-                actual = active.add_evs(stat, base * multiplier)
-                gains[stat] = actual
-
-        if self.party.exp_share_holder is not None:
-            holder = self.party.pokemon[self.party.exp_share_holder]
-            if holder != active:
-                mult = 2 if holder.using_macho_brace else 1
-                for stat, base in ev_yields.items():
-                    stat = normalize_stat(stat)
-                    holder.add_evs(stat, base * mult)
+                actual = mon.add_evs(stat, base * multiplier)
+                if actual > 0:
+                    gains[stat] = actual
+            if gains:
+                all_gains[mon.name] = gains
 
         self.battle_count += 1
-        return gains
+        return all_gains
+
+    def check_vitamin_opportunity(self) -> list[dict]:
+        """Check if any Pokemon in rotation can benefit from vitamins now."""
+        opportunities = []
+        money = self.party.money
+        for mon in self.pokemon_in_rotation():
+            for stat in STATS:
+                usable = mon.vitamins_usable(stat)
+                remaining = mon.remaining_evs(stat)
+                if usable > 0 and remaining > 0 and money >= VITAMIN_PRICE:
+                    affordable = money // VITAMIN_PRICE
+                    to_use = min(usable, affordable, remaining // VITAMIN_EV)
+                    if to_use > 0:
+                        battles_saved = to_use * VITAMIN_EV
+                        opportunities.append({
+                            "pokemon": mon.name,
+                            "stat": stat,
+                            "vitamins": to_use,
+                            "cost": to_use * VITAMIN_PRICE,
+                            "battles_saved": battles_saved,
+                        })
+        return opportunities
 
     def to_dict(self) -> dict:
         return {
             "party": self.party.to_dict(),
-            "active_index": self.active_index,
             "battle_count": self.battle_count,
+            "selected_spot": self.selected_spot,
+            "target_stat": self.target_stat,
         }
 
     @classmethod
     def from_dict(cls, d: dict) -> "Session":
         session = cls()
         session.party = Party.from_dict(d.get("party", {}))
-        session.active_index = d.get("active_index", 0)
         session.battle_count = d.get("battle_count", 0)
+        session.selected_spot = d.get("selected_spot")
+        session.target_stat = d.get("target_stat")
         return session
 
 
